@@ -29,7 +29,12 @@ def test_captured_leaf1_passes() -> None:
     plan = plan_t1()
     leaf1 = plan.router("leaf1")
     assert check_peers(plan, leaf1, load("t1_ebgp_leaf1_bgp_summary.json")) == []
-    assert check_rib(plan, leaf1, load("t1_ebgp_leaf1_ip_route.json")) == []
+    routes = load("t1_ebgp_leaf1_ip_route.json")
+    if "0.0.0.0/0" in routes:
+        # Captured before routers dropped Docker's default route (ADR-013).
+        assert check_rib(plan, leaf1, routes) == ["leaf1: has a default route"]
+        del routes["0.0.0.0/0"]
+    assert check_rib(plan, leaf1, routes) == []
 
 
 def test_peer_down_is_reported() -> None:

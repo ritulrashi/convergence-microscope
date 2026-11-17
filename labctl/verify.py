@@ -106,6 +106,10 @@ def fib_nexthops(entry: dict) -> int:
 
 def check_rib(plan: Plan, r: RouterPlan, routes: dict) -> list[str]:
     fails = []
+    # A default route (Docker's, via the management interface) would carry
+    # packets the fabric has no route for, so blackholes would not show.
+    if "0.0.0.0/0" in routes:
+        fails.append(f"{r.name}: has a default route")
     for pfx in sorted(expected_prefixes(plan, r)):
         entries = routes.get(pfx, [])
         sel = [e for e in entries if e.get("selected")]

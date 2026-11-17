@@ -14,6 +14,8 @@ topology:
         net.ipv4.conf.all.rp_filter: 0
         net.ipv4.conf.default.rp_filter: 0
         net.ipv6.conf.all.disable_ipv6: 1
+      exec:
+      - ip route del default
       labels:
         cm-role: spine
     spine2:
@@ -29,6 +31,8 @@ topology:
         net.ipv4.conf.all.rp_filter: 0
         net.ipv4.conf.default.rp_filter: 0
         net.ipv6.conf.all.disable_ipv6: 1
+      exec:
+      - ip route del default
       labels:
         cm-role: spine
     leaf1:
@@ -44,6 +48,8 @@ topology:
         net.ipv4.conf.all.rp_filter: 0
         net.ipv4.conf.default.rp_filter: 0
         net.ipv6.conf.all.disable_ipv6: 1
+      exec:
+      - ip route del default
       labels:
         cm-role: leaf
     leaf2:
@@ -59,6 +65,8 @@ topology:
         net.ipv4.conf.all.rp_filter: 0
         net.ipv4.conf.default.rp_filter: 0
         net.ipv6.conf.all.disable_ipv6: 1
+      exec:
+      - ip route del default
       labels:
         cm-role: leaf
     leaf3:
@@ -74,6 +82,8 @@ topology:
         net.ipv4.conf.all.rp_filter: 0
         net.ipv4.conf.default.rp_filter: 0
         net.ipv6.conf.all.disable_ipv6: 1
+      exec:
+      - ip route del default
       labels:
         cm-role: leaf
     leaf4:
@@ -89,6 +99,8 @@ topology:
         net.ipv4.conf.all.rp_filter: 0
         net.ipv4.conf.default.rp_filter: 0
         net.ipv6.conf.all.disable_ipv6: 1
+      exec:
+      - ip route del default
       labels:
         cm-role: leaf
     h1:

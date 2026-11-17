@@ -57,3 +57,37 @@ Each ADR: context, decision, alternatives, consequence.
 - **Decision:** the templates emit exactly FRR 10.7.1's canonical form. Normalisation in `labctl/drift.py` only strips FRR's banner, version line, `!` separators and `end`. A clean deploy diffing empty is a tested property (`tests/test_drift.py`, running configs captured from clean deploys of every mode).
 - **Alternatives:** a semantic normaliser that parses both configs into (block, line) sets with a table of FRR rewrites. More code, and every new FRR rewrite is silently "normalised away" instead of showing up as a failing test.
 - **Consequence:** a new FRR version may change the canonical form; the drift fixtures will then fail and must be recaptured with the new image. Relying on FRR's default `maximum-paths` (64) is covered by `verify`'s ECMP-width check.
+
+## ADR-009: Probe flows and rates
+
+- **Context:** SPEC 5.2 asks for a flow ID of (source host, destination host, source port), source ports rotated from a fixed set to cover ECMP paths, and 1,000 pps per flow by default.
+- **Decision:** the rate and the sequence numbers belong to a (source, destination) pair: packet `seq` is due at `start + seq/rate` and leaves from `ports[seq % 4]` (40000 to 40003). Each packet still carries the full flow ID. With 4 ports, each (src, dst, sport) flow is probed every 4 ms at the default rate.
+- **Alternatives:** 1,000 pps for every (src, dst, sport) flow (4x the packet rate: 48,000 pps on T1 all-pairs, too much for the target VM); one source port per pair (only one ECMP path probed).
+- **Consequence:** the loss timeline for a pair has 1 ms resolution, and each ECMP path a pair uses has about 4 ms resolution.
+
+## ADR-010: The recorder models the kernel's silent link-down flush
+
+- **Context:** Calibration showed that when a link goes down, the kernel removes nexthop objects on that device and the routes that depended only on them without sending RTM_DELNEXTHOP or RTM_DELROUTE, and zebra does not resend them. A recorder that only applies netlink messages kept stale ECMP sets (calibration steps B2/B3 failed: no event at all for 7 prefixes).
+- **Decision:** on a link message showing admin down, or up without carrier (`!IFF_RUNNING && !IFF_LOWER_UP`), the recorder applies the kernel's rule itself: delete every nexthop object on the device (with the group and route cascade), and, for admin down only, drop inline next hops on the device. These changes are logged with `via: link-flush`. 100 ms after each link-down the recorder dumps the kernel tables and logs any difference from its model (`kind: check`); the count is in its stats.
+- **Alternatives:** dump after every link event and diff (correct, but the change time would be the dump time, not the link event time); `nexthop_compat_mode` (affects route notifications on nexthop updates, not this flush).
+- **Consequence:** link-down changes are timestamped at the link event. Calibration exercises both admin down and carrier loss, and every cross-check so far found 0 mismatches.
+
+## ADR-011: Kernel-semantics calibration runs without a routing daemon
+
+- **Context:** zebra adopts nexthop groups created outside FRR (`show nexthop-group rib` lists them as `(zebra)`) and reverts outside changes to them about 10 ms later. Calibrating the recorder's nexthop handling on a router therefore measured zebra, not the kernel.
+- **Decision:** calibration part A runs in a dedicated namespace with dummy and veth interfaces and no daemon. Part B checks FRR-driven changes and link events on a real T1 router.
+- **Consequence:** fault injection must never edit kernel nexthop objects on a router directly; it acts on links, FRR config or FRR daemons.
+
+## ADR-012: Probe-schedule tolerance and the 2-core limit
+
+- **Context:** The prober flags a run invalid if any send leaves more than the tolerance (5 ms) after its scheduled time. On the 2-core Codespace, T1 all-pairs probing (12 pairs, 12,000 pps total) with 6 recorders lost no packets, but every trial had a few sends 5 to 12 ms late (p99 about 2 ms), and so did 500 pps per pair. One pair alone stayed under 2 ms. The cause is CPU scheduling contention among 4 probers, 6 FRR routers and 6 recorders on 2 vCPUs (steal time was 0).
+- **Decision:** keep the 5 ms tolerance and run experiments on the spec's 4-core target. Results from 2 cores are kept under `results/p3/two_core/` as a measured limit, not dropped.
+- **Alternatives:** raise the tolerance until 2-core runs pass (hides real gaps in probe coverage); probe fewer pairs on 2 cores (possible later for specific experiments).
+- **Consequence:** the 2-core VM still runs everything, but runs marked invalid there are expected.
+
+## ADR-013: Routers have no default route
+
+- **Context:** containerlab nodes keep Docker's management interface and its default route (`default via 172.20.20.1 dev eth0`). A router whose fabric route for a prefix disappeared would send the packet to the management bridge instead of dropping it, so blackholes during convergence would turn into leaks and look like something else.
+- **Decision:** each router runs `ip route del default` at start (containerlab `exec`), and `verify` fails if any router's RIB has a default route.
+- **Alternatives:** a separate VRF for management (more config, and FRR would need VRF awareness); leave it and filter in analysis (the packets would really leave the fabric).
+- **Consequence:** the management network still reaches routers through its connected /24, which is all `docker exec` and containerlab need.

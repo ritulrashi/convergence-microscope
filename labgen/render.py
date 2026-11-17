@@ -57,6 +57,9 @@ def clab_topology(plan: Plan, frr_image: str) -> dict:
                 f"{r.name}/vtysh.conf:/etc/frr/vtysh.conf",
             ],
             "sysctls": dict(ROUTER_SYSCTLS),
+            # Docker's default route via the management interface would carry
+            # packets a router has no fabric route for, hiding blackholes.
+            "exec": ["ip route del default"],
             "labels": {"cm-role": r.role},
         }
     for h in plan.hosts:
