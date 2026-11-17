@@ -68,7 +68,7 @@ def steps(e1: str, e2: str, s1: str, s2: str, remote: list[str], spine2_lo: str)
         ),
         Step(
             "route replaced by blackhole",
-            [ip + ["route", "replace", "192.0.2.1/32", "blackhole"]],
+            [ip + ["route", "replace", "blackhole", "192.0.2.1/32"]],
             {"192.0.2.1/32": ([h1], ["blackhole"])},
         ),
         Step(
@@ -170,16 +170,20 @@ def main(out_dir: Path = RESULTS / "calibration") -> None:
     work = out_dir / "recorder"
     recs = start_recorders(lab, work, ["leaf1"], raw=True)
     bounds = []
-    for st in plan:
-        t0 = time.monotonic_ns()
-        for c in st.cmds:
-            if c[0] == "vtysh":
-                lab.exec("leaf1", *c)
-            else:
-                lab.netns_exec("leaf1", *c)
-        time.sleep(st.settle_s)
-        bounds.append((t0, time.monotonic_ns()))
-    stats = stop_recorders(recs)
+    try:
+        for st in plan:
+            t0 = time.monotonic_ns()
+            for c in st.cmds:
+                if c[0] == "vtysh":
+                    lab.exec("leaf1", *c)
+                else:
+                    lab.netns_exec("leaf1", *c)
+            time.sleep(st.settle_s)
+            bounds.append((t0, time.monotonic_ns()))
+    finally:
+        stats = stop_recorders(recs)
+        if len(bounds) != len(plan):
+            labmod.down(lab)
 
     events = [json.loads(x) for x in (work / "fib_leaf1.jsonl").read_text().splitlines()]
     for st, (a, b) in zip(plan, bounds, strict=True):
