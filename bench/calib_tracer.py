@@ -116,14 +116,17 @@ def judge_drop_at(probes: dict[int, list[dict]], sent: int, node: str) -> dict:
         if len(drops) == 1 and drops[0]["node"] == node and not beyond:
             good += 1
         for d in drops:
-            reasons[(d["reason"], d["reason_name"])] += 1
+            reasons[(d["reason"], d["reason_name"], d.get("location", ""))] += 1
     ok = good == sent and len(reasons) == 1
     return {
         "pass": ok,
         "sent": sent,
         "probes_seen": len(probes),
         "dropped_once_at_expected_node": good,
-        "reasons": [{"code": c, "name": n, "count": k} for (c, n), k in sorted(reasons.items())],
+        "reasons": [
+            {"code": c, "name": n, "location": loc, "count": k}
+            for (c, n, loc), k in sorted(reasons.items())
+        ],
     }
 
 
@@ -145,7 +148,7 @@ def judge_loop(probes: dict[int, list[dict]], sent: int, pair: set[str]) -> dict
         )
         good += ok
         for d in drops:
-            reasons[(d["reason"], d["reason_name"])] += 1
+            reasons[(d["reason"], d["reason_name"], d.get("location", ""))] += 1
     return {
         "pass": good == sent and len(reasons) == 1,
         "sent": sent,
@@ -153,7 +156,10 @@ def judge_loop(probes: dict[int, list[dict]], sent: int, pair: set[str]) -> dict
         "loop_signature": good,
         "visits_in_loop_min": min(visits) if visits else 0,
         "visits_in_loop_max": max(visits) if visits else 0,
-        "reasons": [{"code": c, "name": n, "count": k} for (c, n), k in sorted(reasons.items())],
+        "reasons": [
+            {"code": c, "name": n, "location": loc, "count": k}
+            for (c, n, loc), k in sorted(reasons.items())
+        ],
     }
 
 
@@ -265,14 +271,18 @@ def main(out_dir: Path = RESULTS / "calibration") -> None:
                 "kernel": subprocess.run(
                     ["uname", "-r"], capture_output=True, text=True
                 ).stdout.strip(),
+                # A drop is classified by (reason code, kernel function that
+                # freed the packet): NOT_SPECIFIED alone is too generic.
                 "blackhole": sorted(
                     {
-                        r["code"]
+                        f"{r['code']}@{r['location']}"
                         for k in ("blackhole", "unreachable", "no_route")
                         for r in mapping.get(k, [])
                     }
                 ),
-                "ttl_expired": sorted({r["code"] for r in mapping.get("loop", [])}),
+                "ttl_expired": sorted(
+                    {f"{r['code']}@{r['location']}" for r in mapping.get("loop", [])}
+                ),
                 "cases": mapping,
             },
             indent=2,

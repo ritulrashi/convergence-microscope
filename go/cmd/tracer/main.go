@@ -30,6 +30,7 @@ import (
 	"github.com/cilium/ebpf/rlimit"
 	"golang.org/x/sys/unix"
 
+	"github.com/ritulrashi/convergence-microscope/go/internal/ksym"
 	"github.com/ritulrashi/convergence-microscope/go/internal/mono"
 	"github.com/ritulrashi/convergence-microscope/go/internal/probe"
 )
@@ -146,6 +147,13 @@ func main() {
 	}
 	w := bufio.NewWriterSize(f, 1<<20)
 	reasons := dropReasonNames()
+	// Drop locations are written as function names: addresses change every
+	// boot (KASLR), names do not.
+	var syms *ksym.Table
+	if kf, err := os.Open("/proc/kallsyms"); err == nil {
+		syms, _ = ksym.Parse(kf)
+		kf.Close()
+	}
 	names := map[uint32]string(nsmap)
 	start := mono.Now()
 	hdr, _ := json.Marshal(map[string]any{"kind": "start", "t": start, "tracefs_mounted_by_tracer": mounted,
@@ -203,7 +211,7 @@ func main() {
 			line = append(line, `,"reason_name":`...)
 			line = strconv.AppendQuote(line, reasons[e.Reason])
 			line = append(line, `,"location":`...)
-			line = strconv.AppendUint(line, e.Location, 10)
+			line = strconv.AppendQuote(line, syms.Name(e.Location))
 			if e.FromMap == 1 {
 				line = append(line, `,"node_from":"last_rx"`...)
 			}

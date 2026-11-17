@@ -24,6 +24,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/ritulrashi/convergence-microscope/go/internal/replay"
@@ -46,8 +47,8 @@ type plan struct {
 }
 
 type reasons struct {
-	Blackhole  []uint32 `json:"blackhole"`
-	TTLExpired []uint32 `json:"ttl_expired"`
+	Blackhole  []string `json:"blackhole"` // "code@function"
+	TTLExpired []string `json:"ttl_expired"`
 }
 
 type probeKey struct {
@@ -67,6 +68,7 @@ type hop struct {
 	TTL        int    `json:"ttl"`
 	Reason     uint32 `json:"reason"`
 	ReasonName string `json:"reason_name"`
+	Location   string `json:"location"`
 }
 
 func main() {
@@ -228,9 +230,9 @@ func main() {
 				for _, h := range path {
 					if h.Ev == "drop" {
 						switch {
-						case bhCodes[h.Reason]:
+						case bhCodes[dropKey(h)]:
 							obs = "blackhole"
-						case ttlCodes[h.Reason]:
+						case ttlCodes[dropKey(h)]:
 							obs = "loop"
 						default:
 							obs = "other:" + h.ReasonName
@@ -402,8 +404,10 @@ func ratio(a, b int) any {
 	return float64(a) / float64(b)
 }
 
-func set(xs []uint32) map[uint32]bool {
-	m := map[uint32]bool{}
+func dropKey(h hop) string { return strconv.FormatUint(uint64(h.Reason), 10) + "@" + h.Location }
+
+func set(xs []string) map[string]bool {
+	m := map[string]bool{}
 	for _, x := range xs {
 		m[x] = true
 	}
