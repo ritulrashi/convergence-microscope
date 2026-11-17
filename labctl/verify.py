@@ -34,10 +34,15 @@ def expected_peers(plan: Plan, r: RouterPlan) -> dict[str, str]:
     return out
 
 
-def expected_prefixes(plan: Plan) -> set[str]:
-    out = {r.loopback for r in plan.routers}
-    for r in plan.routers:
-        out.update(r.host_subnets)
+def expected_prefixes(plan: Plan, r: RouterPlan | None = None) -> set[str]:
+    """Prefixes R must have. In leafspine eBGP, spines share one ASN and leaves
+    never re-export, so a spine never learns another spine's loopback. That is
+    the RFC 7938 design, not a fault."""
+    out = {x.loopback for x in plan.routers}
+    for x in plan.routers:
+        out.update(x.host_subnets)
+    if r is not None and plan.mode == "ebgp" and plan.topology == "leafspine" and r.role == "spine":
+        out -= {x.loopback for x in plan.routers if x.role == "spine" and x.name != r.name}
     return out
 
 
@@ -101,7 +106,7 @@ def fib_nexthops(entry: dict) -> int:
 
 def check_rib(plan: Plan, r: RouterPlan, routes: dict) -> list[str]:
     fails = []
-    for pfx in sorted(expected_prefixes(plan)):
+    for pfx in sorted(expected_prefixes(plan, r)):
         entries = routes.get(pfx, [])
         sel = [e for e in entries if e.get("selected")]
         if not sel:
@@ -153,7 +158,7 @@ def verify_once(lab: Lab, ping: bool = True) -> VerifyResult:
         for f in ex.map(per_router, plan.routers):
             failures += f
     counts["peers"] = sum(len(expected_peers(plan, r)) for r in plan.routers)
-    counts["rib"] = len(plan.routers) * len(expected_prefixes(plan))
+    counts["rib"] = sum(len(expected_prefixes(plan, r)) for r in plan.routers)
 
     if ping and not failures:
         def one(p: tuple[str, str, str]) -> str | None:
