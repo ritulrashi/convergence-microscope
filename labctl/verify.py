@@ -161,6 +161,7 @@ def verify_once(lab: Lab, ping: bool = True) -> VerifyResult:
     counts["rib"] = sum(len(expected_prefixes(plan, r)) for r in plan.routers)
 
     if ping and not failures:
+
         def one(p: tuple[str, str, str]) -> str | None:
             a, b, ip = p
             res = lab.exec(a, "ping", "-c", "2", "-i", "0.2", "-W", "1", ip, check=False)
@@ -175,8 +176,9 @@ def verify_once(lab: Lab, ping: bool = True) -> VerifyResult:
     return VerifyResult(not failures, failures, counts)
 
 
-def verify_wait(lab: Lab, timeout_s: float, interval_s: float = 1.0
-                ) -> tuple[VerifyResult, float, int]:
+def verify_wait(
+    lab: Lab, timeout_s: float, interval_s: float = 1.0
+) -> tuple[VerifyResult, float, int]:
     """Repeat verify until it passes or times out.
     Return (last result, seconds from start to the passing attempt's start, attempts)."""
     t0 = time.monotonic()

@@ -22,9 +22,12 @@ BfdOpt = typer.Option(None, "--bfd/--no-bfd", help="override routing.bfd")
 
 
 @app.command()
-def up(intent: Path = IntentArg, mode: Mode | None = ModeOpt, bfd: bool | None = BfdOpt,
-       wait: float = typer.Option(0, help="then verify, retrying for up to this many seconds")
-       ) -> None:
+def up(
+    intent: Path = IntentArg,
+    mode: Mode | None = ModeOpt,
+    bfd: bool | None = BfdOpt,
+    wait: float = typer.Option(0, help="then verify, retrying for up to this many seconds"),
+) -> None:
     """Generate configs and deploy the lab."""
     lab = labmod.load(intent, mode, bfd)
     secs = labmod.up(lab)
@@ -34,8 +37,7 @@ def up(intent: Path = IntentArg, mode: Mode | None = ModeOpt, bfd: bool | None =
 
 
 @app.command()
-def down(intent: Path = IntentArg, mode: Mode | None = ModeOpt, bfd: bool | None = BfdOpt
-         ) -> None:
+def down(intent: Path = IntentArg, mode: Mode | None = ModeOpt, bfd: bool | None = BfdOpt) -> None:
     """Destroy the lab."""
     lab = labmod.load(intent, mode, bfd)
     labmod.down(lab)
@@ -44,9 +46,15 @@ def down(intent: Path = IntentArg, mode: Mode | None = ModeOpt, bfd: bool | None
 
 def _verify(lab: labmod.Lab, wait: float, out_path: Path | None = None) -> None:
     res, t, attempts = verify_wait(lab, wait)
-    out = {"record": "verify", "lab": lab.name, "ok": res.ok, "checks": res.checks,
-           "failures": res.failures, "attempts": attempts,
-           "seconds_to_pass": round(t, 3) if res.ok else None}
+    out = {
+        "record": "verify",
+        "lab": lab.name,
+        "ok": res.ok,
+        "checks": res.checks,
+        "failures": res.failures,
+        "attempts": attempts,
+        "seconds_to_pass": round(t, 3) if res.ok else None,
+    }
     typer.echo(json.dumps(out, indent=2))
     if out_path is not None:
         with ResultWriter(out_path) as w:
@@ -56,16 +64,19 @@ def _verify(lab: labmod.Lab, wait: float, out_path: Path | None = None) -> None:
 
 
 @app.command()
-def verify(intent: Path = IntentArg, mode: Mode | None = ModeOpt, bfd: bool | None = BfdOpt,
-           wait: float = typer.Option(0, help="retry for up to this many seconds"),
-           out: Path | None = typer.Option(None, help="also write a results JSONL file")) -> None:
+def verify(
+    intent: Path = IntentArg,
+    mode: Mode | None = ModeOpt,
+    bfd: bool | None = BfdOpt,
+    wait: float = typer.Option(0, help="retry for up to this many seconds"),
+    out: Path | None = typer.Option(None, help="also write a results JSONL file"),
+) -> None:
     """Check sessions/adjacencies, RIBs, ECMP width and full-mesh host ping."""
     _verify(labmod.load(intent, mode, bfd), wait, out)
 
 
 @app.command()
-def diff(intent: Path = IntentArg, mode: Mode | None = ModeOpt, bfd: bool | None = BfdOpt
-         ) -> None:
+def diff(intent: Path = IntentArg, mode: Mode | None = ModeOpt, bfd: bool | None = BfdOpt) -> None:
     """Config drift: each router's running config vs its generated frr.conf."""
     lab = labmod.load(intent, mode, bfd)
     drifted = 0
@@ -81,8 +92,12 @@ def diff(intent: Path = IntentArg, mode: Mode | None = ModeOpt, bfd: bool | None
 
 
 @app.command()
-def snapshot(intent: Path = IntentArg, mode: Mode | None = ModeOpt, bfd: bool | None = BfdOpt,
-             out: Path = typer.Option(..., help="output JSON path")) -> None:
+def snapshot(
+    intent: Path = IntentArg,
+    mode: Mode | None = ModeOpt,
+    bfd: bool | None = BfdOpt,
+    out: Path = typer.Option(..., help="output JSON path"),
+) -> None:
     """Dump every router's kernel routes and nexthop objects."""
     typer.echo(str(write_snapshot(labmod.load(intent, mode, bfd), out)))
 

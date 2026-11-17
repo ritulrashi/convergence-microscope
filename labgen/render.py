@@ -90,8 +90,9 @@ def render(plan: Plan, frr_image: str) -> dict[str, str]:
     return files
 
 
-def generate(intent: Intent, mode: Mode | None, out_root: Path, frr_image: str,
-             bfd: bool | None = None) -> Path:
+def generate(
+    intent: Intent, mode: Mode | None, out_root: Path, frr_image: str, bfd: bool | None = None
+) -> Path:
     plan = build_plan(intent, mode, bfd)
     out = out_root / out_dir_name(plan)
     for rel, content in sorted(render(plan, frr_image).items()):

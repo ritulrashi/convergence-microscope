@@ -88,6 +88,7 @@ def test_rejects_duplicate_asn() -> None:
     def m(d):
         d["routing"]["mode"] = "ebgp"
         d["nodes"][1]["asn"] = 65001  # r1 gets base 65001
+
     assert "duplicate ASN 65001" in bad("t2", m)
 
 
@@ -95,40 +96,47 @@ def test_rejects_duplicate_router_id() -> None:
     def m(d):
         d["nodes"][0]["router_id"] = "1.1.1.1"
         d["nodes"][1]["router_id"] = "1.1.1.1"
+
     assert "duplicate router ID 1.1.1.1" in bad("t2", m)
 
 
 def test_rejects_overlapping_pools() -> None:
     def m(d):
         d["pools"]["link"] = "10.0.0.0/16"
+
     assert "pools overlap" in bad("t1", m)
 
 
 def test_rejects_exhausted_loopback_pool() -> None:
     def m(d):
         d["pools"]["loopback"] = "10.0.0.0/30"
+
     assert "loopback pool 10.0.0.0/30" in bad("t1", m)
 
 
 def test_rejects_exhausted_link_pool() -> None:
     def m(d):
         d["pools"]["link"] = "10.1.0.0/29"
+
     assert "link pool 10.1.0.0/29 has 4 /31s, 8 links" in bad("t1", m)
 
 
 def test_rejects_link_to_unknown_node() -> None:
     def m(d):
         d["links"].append({"a": "leaf1", "b": "spine9"})
+
     assert "unknown node 'spine9'" in bad("t1", m)
 
 
 def test_rejects_leaf_with_one_uplink() -> None:
     def m(d):
         d["links"] = [lk for lk in d["links"] if lk != {"a": "leaf4", "b": "spine2"}]
+
     assert "leaf 'leaf4' has 1 uplink(s)" in bad("t1", m)
 
 
 def test_rejects_unknown_field() -> None:
     def m(d):
         d["routing"]["moed"] = "ospf"
+
     assert "moed" in bad("t1", m)

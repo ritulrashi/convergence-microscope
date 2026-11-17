@@ -188,8 +188,11 @@ class Intent(Strict):
                     errors.append(f"node {n.name!r}: role 'router' is not valid in leafspine")
                 if n.role is not Role.leaf:
                     continue
-                up = sum(1 for lk in self.links if n.name in (lk.a, lk.b)
-                         and ({lk.a, lk.b} - {n.name}) <= spines)
+                up = sum(
+                    1
+                    for lk in self.links
+                    if n.name in (lk.a, lk.b) and ({lk.a, lk.b} - {n.name}) <= spines
+                )
                 if up < 2:
                     errors.append(f"leaf {n.name!r} has {up} uplink(s); at least 2 are required")
             if self.routing.mode is Mode.ebgp and self.routing.asn.spine is None:

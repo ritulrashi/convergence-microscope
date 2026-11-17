@@ -42,25 +42,47 @@ def trial(lab: labmod.Lab, timeout: float) -> dict:
     }
 
 
-def main(trials: int = 10, out: Path = RESULTS / "e1" / "e1.jsonl", timeout: float = 180,
-         topos: str = "t1,t2", modes: str = "ebgp,ospf,isis") -> None:
+def main(
+    trials: int = 10,
+    out: Path = RESULTS / "e1" / "e1.jsonl",
+    timeout: float = 180,
+    topos: str = "t1,t2",
+    modes: str = "ebgp,ospf,isis",
+) -> None:
     with ResultWriter(out) as w:
         for topo in topos.split(","):
             for mode in modes.split(","):
                 lab = labmod.load(Path(INTENTS[topo]), Mode(mode), False)
                 ok: list[float] = []
                 for i in range(trials):
-                    rec = {"record": "trial", "experiment": "E1", "topology": topo,
-                           "mode": mode, "bfd": False, "trial": i, **trial(lab, timeout)}
+                    rec = {
+                        "record": "trial",
+                        "experiment": "E1",
+                        "topology": topo,
+                        "mode": mode,
+                        "bfd": False,
+                        "trial": i,
+                        **trial(lab, timeout),
+                    }
                     w.write(rec)
                     if rec["valid"]:
                         ok.append(rec["bringup_s"])
-                    typer.echo(f"{topo}-{mode} #{i}: bringup {rec['bringup_s']} s "
-                               f"(deploy {rec['deploy_s']} s) valid={rec['valid']}")
+                    typer.echo(
+                        f"{topo}-{mode} #{i}: bringup {rec['bringup_s']} s "
+                        f"(deploy {rec['deploy_s']} s) valid={rec['valid']}"
+                    )
                 labmod.down(lab)
-                w.write({"record": "summary", "experiment": "E1", "topology": topo,
-                         "mode": mode, "metric": "bringup_s",
-                         "excluded_invalid": trials - len(ok), **summarize(ok)})
+                w.write(
+                    {
+                        "record": "summary",
+                        "experiment": "E1",
+                        "topology": topo,
+                        "mode": mode,
+                        "metric": "bringup_s",
+                        "excluded_invalid": trials - len(ok),
+                        **summarize(ok),
+                    }
+                )
 
 
 if __name__ == "__main__":

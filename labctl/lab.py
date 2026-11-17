@@ -21,8 +21,9 @@ class CmdError(RuntimeError):
     pass
 
 
-def run(cmd: list[str], *, check: bool = True, timeout: float = 120, input: str | None = None
-        ) -> subprocess.CompletedProcess[str]:
+def run(
+    cmd: list[str], *, check: bool = True, timeout: float = 120, input: str | None = None
+) -> subprocess.CompletedProcess[str]:
     p = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout, input=input)
     if check and p.returncode != 0:
         raise CmdError(f"{' '.join(cmd)} -> rc={p.returncode}: {p.stderr.strip()[:500]}")
@@ -52,8 +53,9 @@ class Lab:
     def container(self, node: str) -> str:
         return f"clab-{self.name}-{node}"
 
-    def exec(self, node: str, *args: str, check: bool = True, timeout: float = 30
-             ) -> subprocess.CompletedProcess[str]:
+    def exec(
+        self, node: str, *args: str, check: bool = True, timeout: float = 30
+    ) -> subprocess.CompletedProcess[str]:
         return run(["docker", "exec", self.container(node), *args], check=check, timeout=timeout)
 
     def vtysh_json(self, node: str, command: str) -> dict:
@@ -64,11 +66,13 @@ class Lab:
         out = run(["docker", "inspect", "-f", "{{.State.Pid}}", self.container(node)]).stdout
         return int(out.strip())
 
-    def netns_exec(self, node: str, *args: str, timeout: float = 30
-                   ) -> subprocess.CompletedProcess[str]:
+    def netns_exec(
+        self, node: str, *args: str, timeout: float = 30
+    ) -> subprocess.CompletedProcess[str]:
         """Run a devcontainer binary inside NODE's network namespace."""
-        return run([*sudo_prefix(), "nsenter", "-t", str(self.pid(node)), "-n", *args],
-                   timeout=timeout)
+        return run(
+            [*sudo_prefix(), "nsenter", "-t", str(self.pid(node)), "-n", *args], timeout=timeout
+        )
 
 
 def load(intent: Path, mode: Mode | None, bfd: bool | None = None) -> Lab:
@@ -79,10 +83,20 @@ def load(intent: Path, mode: Mode | None, bfd: bool | None = None) -> Lab:
 
 
 def ensure_host_image() -> None:
-    if run(["docker", "image", "inspect", "cm-host:latest"], check=False).returncode == 0:
-        return
-    run(["docker", "build", "-f", str(REPO / "images/host/Dockerfile"), "-t", "cm-host:latest",
-         str(REPO)], timeout=900)
+    """Build the host image. Docker's layer cache makes this quick when the
+    prober is unchanged, and it never runs a stale prober."""
+    run(
+        [
+            "docker",
+            "build",
+            "-f",
+            str(REPO / "images/host/Dockerfile"),
+            "-t",
+            "cm-host:latest",
+            str(REPO),
+        ],
+        timeout=900,
+    )
 
 
 def up(lab: Lab) -> float:
@@ -91,11 +105,12 @@ def up(lab: Lab) -> float:
     if shutil.which("containerlab") is None:
         raise CmdError("containerlab not found")
     t0 = time.monotonic()
-    run([*sudo_prefix(), "containerlab", "deploy", "-t", str(lab.topo), "--reconfigure"],
-        timeout=600)
+    run(
+        [*sudo_prefix(), "containerlab", "deploy", "-t", str(lab.topo), "--reconfigure"],
+        timeout=600,
+    )
     return time.monotonic() - t0
 
 
 def down(lab: Lab) -> None:
-    run([*sudo_prefix(), "containerlab", "destroy", "-t", str(lab.topo), "--cleanup"],
-        timeout=300)
+    run([*sudo_prefix(), "containerlab", "destroy", "-t", str(lab.topo), "--cleanup"], timeout=300)

@@ -13,8 +13,9 @@ from labctl.machine import machine_record
 
 def snapshot_router(lab: Lab, node: str) -> dict:
     t0 = time.monotonic_ns()
-    routes = json.loads(lab.netns_exec(node, "ip", "-j", "route", "show", "table", "main").stdout
-                        or "[]")
+    routes = json.loads(
+        lab.netns_exec(node, "ip", "-j", "route", "show", "table", "main").stdout or "[]"
+    )
     nexthops = json.loads(lab.netns_exec(node, "ip", "-j", "nexthop", "show").stdout or "[]")
     t1 = time.monotonic_ns()
     return {"t_start_ns": t0, "t_end_ns": t1, "routes": routes, "nexthops": nexthops}

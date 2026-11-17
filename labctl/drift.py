@@ -25,5 +25,13 @@ def normalize(text: str) -> list[str]:
 
 
 def diff(generated: str, running: str, name: str = "") -> list[str]:
-    return list(difflib.unified_diff(normalize(generated), normalize(running),
-                                     f"generated/{name}", f"running/{name}", lineterm="", n=1))
+    return list(
+        difflib.unified_diff(
+            normalize(generated),
+            normalize(running),
+            f"generated/{name}",
+            f"running/{name}",
+            lineterm="",
+            n=1,
+        )
+    )

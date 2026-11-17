@@ -1,8 +1,17 @@
 from labctl.machine import machine_record
 
 REQUIRED = {
-    "cpu_count", "cpu_model", "mem_total_bytes", "kernel", "docker", "containerlab",
-    "frr_image", "go", "python", "git_commit", "git_tree_clean",
+    "cpu_count",
+    "cpu_model",
+    "mem_total_bytes",
+    "kernel",
+    "docker",
+    "containerlab",
+    "frr_image",
+    "go",
+    "python",
+    "git_commit",
+    "git_tree_clean",
 }
 
 

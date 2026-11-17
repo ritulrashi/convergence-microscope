@@ -196,4 +196,3 @@ func write(path string, r report) error {
 	}
 	return os.WriteFile(path, b, 0o644)
 }
-

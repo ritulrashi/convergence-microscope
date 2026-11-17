@@ -42,7 +42,9 @@ def test_injected_cost_change_is_drift() -> None:
 
 
 def test_banner_lines_are_ignored() -> None:
-    assert diff("hostname a\n", "Building configuration...\n!\nfrr version 1\nhostname a\nend\n") == []
+    assert (
+        diff("hostname a\n", "Building configuration...\n!\nfrr version 1\nhostname a\nend\n") == []
+    )
 
 
 def test_ospf_and_isis_neighbor_parsing() -> None:

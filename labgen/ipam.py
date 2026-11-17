@@ -144,9 +144,7 @@ def build_plan(intent: Intent, mode: Mode | None = None, bfd: bool | None = None
         net = host_sites[h.site]
         gw, addr = net[1], net[10]
         r_if = next_if(h.attach)
-        routers[h.attach].ifaces.append(
-            Iface(r_if, f"{gw}/24", h.name, str(addr), 10, "host")
-        )
+        routers[h.attach].ifaces.append(Iface(r_if, f"{gw}/24", h.name, str(addr), 10, "host"))
         routers[h.attach].host_subnets.append(str(net))
         hosts.append(HostPlan(h.name, h.attach, h.site, f"{addr}/24", str(gw)))
         links.append(LinkPlan(h.attach, r_if, h.name, "eth1", str(net), 10))

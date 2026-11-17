@@ -8,7 +8,7 @@ export PATH := /opt/go/bin:$(PATH)
 GO ?= go
 FRR_IMAGE := $(shell cat images/frr-image.txt)
 
-.PHONY: all vmlinux generate ebpfcheck build test test-go test-py lint host-image preflight
+.PHONY: all vmlinux generate ebpfcheck build test test-go test-py lint host-image preflight calibrate
 
 all: build
 
@@ -26,7 +26,7 @@ ebpfcheck: generate
 
 build:
 	mkdir -p build
-	cd go && $(GO) build -o ../build/ ./cmd/...
+	cd go && for c in prober recorder ebpfcheck; do $(GO) build -o ../build/$$c ./cmd/$$c || exit 1; done
 
 test: test-go test-py
 
@@ -45,3 +45,6 @@ host-image:
 
 preflight:
 	bash scripts/preflight.sh
+
+calibrate: build
+	bash scripts/calibrate.sh
