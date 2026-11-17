@@ -54,15 +54,15 @@ func main() {
 	}
 	defer objs.Close()
 	attached := map[string]bool{}
-	if l, err := link.Kprobe("rtnl_notify", objs.KNotify, nil); err == nil {
+	if l, err := link.Kprobe("rtnl_notify", objs.K_notify, nil); err == nil {
 		defer l.Close()
 		attached["rtnl_notify"] = true
 	}
-	if l, err := link.Kprobe("fib_table_insert", objs.KInsert, nil); err == nil {
+	if l, err := link.Kprobe("fib_table_insert", objs.K_insert, nil); err == nil {
 		defer l.Close()
 		attached["fib_table_insert"] = true
 	}
-	if l, err := link.Kprobe("fib_table_delete", objs.KDelete, nil); err == nil {
+	if l, err := link.Kprobe("fib_table_delete", objs.K_delete, nil); err == nil {
 		defer l.Close()
 		attached["fib_table_delete"] = true
 	}
