@@ -36,3 +36,17 @@ Each ADR: context, decision, alternatives, consequence.
 - **Decision:** `scripts/preflight.sh` (and later the tracer startup) mounts tracefs at `/sys/kernel/tracing` if neither tracing path is mounted, and records that as its own check.
 - **Alternatives:** a bind mount in `devcontainer.json` (only takes effect after a full rebuild, and depends on the host path existing); `tp_btf` raw tracepoints (no tracefs needed, but a different program type than the spec names).
 - **Consequence:** the privileged devcontainer gains one extra mount, done visibly and recorded in `results/preflight.json`.
+
+## ADR-006: Spines do not expect each other's loopbacks in leaf-spine eBGP
+
+- **Context:** In T1 eBGP, spines share ASN 65000 and leaves export only their own prefixes (SPEC 4.2). The first `verify` failed because `spine1` had no route to `spine2`'s loopback.
+- **Decision:** That is the intended RFC 7938 behavior, so `verify` excludes other spines' loopbacks from a spine's expected RIB in leaf-spine eBGP. All other prefixes are still required everywhere.
+- **Alternatives:** let leaves re-export spine loopbacks (makes leaves transit for spine-to-spine traffic, which the spec forbids); give spines distinct ASNs (not RFC 7938 style).
+- **Consequence:** spine-to-spine reachability is not part of the fabric's contract and is not probed.
+
+## ADR-007: Lab plumbing choices
+
+- **Context:** Containers keep Docker's management interface (eth0, 172.20.20.0/24) with a default route.
+- **Decision:** Hosts get `10.0.0.0/8 via <gateway>` instead of replacing the default route, so the management path keeps working and all lab traffic uses the fabric. Router sysctls (`ip_forward`, `fib_multipath_hash_policy=1`, `rp_filter=0`, IPv6 off) are set through containerlab's `sysctls` so they apply before FRR starts. Interface addresses are configured by FRR (`zebra`), so the generated `frr.conf` is the single source of addressing.
+- **Alternatives:** `exec` sysctls after start (race with FRR); addresses via `ip addr` in `exec` (two sources of truth for drift checks).
+- **Consequence:** `labctl diff` compares one config per router.

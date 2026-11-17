@@ -1,0 +1,1212 @@
+{
+ "clock": "CLOCK_MONOTONIC",
+ "lab": "cm-t1-ebgp",
+ "machine": {
+  "containerlab": "0.83.0",
+  "cpu_count": 2,
+  "cpu_model": "AMD EPYC 7763 64-Core Processor",
+  "docker": "26.1.5-1",
+  "frr_image": "quay.io/frrouting/frr:10.7.1",
+  "git_commit": "8bb1f74c9c9bf53fe800a28d55497f38551485f2",
+  "git_tree_clean": true,
+  "go": "go1.26.11",
+  "kernel": "6.8.0-1070-azure",
+  "mem_total_bytes": 8328060928,
+  "python": "3.11.18",
+  "record": "machine"
+ },
+ "routers": {
+  "leaf1": {
+   "nexthops": [
+    {
+     "dev": "eth1",
+     "flags": [],
+     "gateway": "10.1.0.1",
+     "id": 27,
+     "protocol": "zebra",
+     "scope": "link"
+    },
+    {
+     "flags": [],
+     "group": [
+      {
+       "id": 27
+      },
+      {
+       "id": 29
+      }
+     ],
+     "id": 28,
+     "protocol": "zebra"
+    },
+    {
+     "dev": "eth2",
+     "flags": [],
+     "gateway": "10.1.0.3",
+     "id": 29,
+     "protocol": "zebra",
+     "scope": "link"
+    }
+   ],
+   "routes": [
+    {
+     "dev": "eth0",
+     "dst": "default",
+     "flags": [],
+     "gateway": "172.20.20.1"
+    },
+    {
+     "dev": "eth1",
+     "dst": "10.0.0.1",
+     "flags": [],
+     "gateway": "10.1.0.1",
+     "metric": 20,
+     "nhid": 27,
+     "protocol": "bgp"
+    },
+    {
+     "dev": "eth2",
+     "dst": "10.0.0.2",
+     "flags": [],
+     "gateway": "10.1.0.3",
+     "metric": 20,
+     "nhid": 29,
+     "protocol": "bgp"
+    },
+    {
+     "dst": "10.0.0.4",
+     "flags": [],
+     "metric": 20,
+     "nexthops": [
+      {
+       "dev": "eth1",
+       "flags": [],
+       "gateway": "10.1.0.1",
+       "weight": 1
+      },
+      {
+       "dev": "eth2",
+       "flags": [],
+       "gateway": "10.1.0.3",
+       "weight": 1
+      }
+     ],
+     "nhid": 28,
+     "protocol": "bgp"
+    },
+    {
+     "dst": "10.0.0.5",
+     "flags": [],
+     "metric": 20,
+     "nexthops": [
+      {
+       "dev": "eth1",
+       "flags": [],
+       "gateway": "10.1.0.1",
+       "weight": 1
+      },
+      {
+       "dev": "eth2",
+       "flags": [],
+       "gateway": "10.1.0.3",
+       "weight": 1
+      }
+     ],
+     "nhid": 28,
+     "protocol": "bgp"
+    },
+    {
+     "dst": "10.0.0.6",
+     "flags": [],
+     "metric": 20,
+     "nexthops": [
+      {
+       "dev": "eth1",
+       "flags": [],
+       "gateway": "10.1.0.1",
+       "weight": 1
+      },
+      {
+       "dev": "eth2",
+       "flags": [],
+       "gateway": "10.1.0.3",
+       "weight": 1
+      }
+     ],
+     "nhid": 28,
+     "protocol": "bgp"
+    },
+    {
+     "dev": "eth1",
+     "dst": "10.1.0.0/31",
+     "flags": [],
+     "prefsrc": "10.1.0.0",
+     "protocol": "kernel",
+     "scope": "link"
+    },
+    {
+     "dev": "eth2",
+     "dst": "10.1.0.2/31",
+     "flags": [],
+     "prefsrc": "10.1.0.2",
+     "protocol": "kernel",
+     "scope": "link"
+    },
+    {
+     "dev": "eth3",
+     "dst": "10.10.1.0/24",
+     "flags": [],
+     "prefsrc": "10.10.1.1",
+     "protocol": "kernel",
+     "scope": "link"
+    },
+    {
+     "dst": "10.10.2.0/24",
+     "flags": [],
+     "metric": 20,
+     "nexthops": [
+      {
+       "dev": "eth1",
+       "flags": [],
+       "gateway": "10.1.0.1",
+       "weight": 1
+      },
+      {
+       "dev": "eth2",
+       "flags": [],
+       "gateway": "10.1.0.3",
+       "weight": 1
+      }
+     ],
+     "nhid": 28,
+     "protocol": "bgp"
+    },
+    {
+     "dst": "10.10.3.0/24",
+     "flags": [],
+     "metric": 20,
+     "nexthops": [
+      {
+       "dev": "eth1",
+       "flags": [],
+       "gateway": "10.1.0.1",
+       "weight": 1
+      },
+      {
+       "dev": "eth2",
+       "flags": [],
+       "gateway": "10.1.0.3",
+       "weight": 1
+      }
+     ],
+     "nhid": 28,
+     "protocol": "bgp"
+    },
+    {
+     "dst": "10.10.4.0/24",
+     "flags": [],
+     "metric": 20,
+     "nexthops": [
+      {
+       "dev": "eth1",
+       "flags": [],
+       "gateway": "10.1.0.1",
+       "weight": 1
+      },
+      {
+       "dev": "eth2",
+       "flags": [],
+       "gateway": "10.1.0.3",
+       "weight": 1
+      }
+     ],
+     "nhid": 28,
+     "protocol": "bgp"
+    },
+    {
+     "dev": "eth0",
+     "dst": "172.20.20.0/24",
+     "flags": [],
+     "prefsrc": "172.20.20.9",
+     "protocol": "kernel",
+     "scope": "link"
+    }
+   ],
+   "t_end_ns": 3145918798763,
+   "t_start_ns": 3145862955548
+  },
+  "leaf2": {
+   "nexthops": [
+    {
+     "dev": "eth1",
+     "flags": [],
+     "gateway": "10.1.0.5",
+     "id": 27,
+     "protocol": "zebra",
+     "scope": "link"
+    },
+    {
+     "flags": [],
+     "group": [
+      {
+       "id": 27
+      },
+      {
+       "id": 29
+      }
+     ],
+     "id": 28,
+     "protocol": "zebra"
+    },
+    {
+     "dev": "eth2",
+     "flags": [],
+     "gateway": "10.1.0.7",
+     "id": 29,
+     "protocol": "zebra",
+     "scope": "link"
+    }
+   ],
+   "routes": [
+    {
+     "dev": "eth0",
+     "dst": "default",
+     "flags": [],
+     "gateway": "172.20.20.1"
+    },
+    {
+     "dev": "eth1",
+     "dst": "10.0.0.1",
+     "flags": [],
+     "gateway": "10.1.0.5",
+     "metric": 20,
+     "nhid": 27,
+     "protocol": "bgp"
+    },
+    {
+     "dev": "eth2",
+     "dst": "10.0.0.2",
+     "flags": [],
+     "gateway": "10.1.0.7",
+     "metric": 20,
+     "nhid": 29,
+     "protocol": "bgp"
+    },
+    {
+     "dst": "10.0.0.3",
+     "flags": [],
+     "metric": 20,
+     "nexthops": [
+      {
+       "dev": "eth1",
+       "flags": [],
+       "gateway": "10.1.0.5",
+       "weight": 1
+      },
+      {
+       "dev": "eth2",
+       "flags": [],
+       "gateway": "10.1.0.7",
+       "weight": 1
+      }
+     ],
+     "nhid": 28,
+     "protocol": "bgp"
+    },
+    {
+     "dst": "10.0.0.5",
+     "flags": [],
+     "metric": 20,
+     "nexthops": [
+      {
+       "dev": "eth1",
+       "flags": [],
+       "gateway": "10.1.0.5",
+       "weight": 1
+      },
+      {
+       "dev": "eth2",
+       "flags": [],
+       "gateway": "10.1.0.7",
+       "weight": 1
+      }
+     ],
+     "nhid": 28,
+     "protocol": "bgp"
+    },
+    {
+     "dst": "10.0.0.6",
+     "flags": [],
+     "metric": 20,
+     "nexthops": [
+      {
+       "dev": "eth1",
+       "flags": [],
+       "gateway": "10.1.0.5",
+       "weight": 1
+      },
+      {
+       "dev": "eth2",
+       "flags": [],
+       "gateway": "10.1.0.7",
+       "weight": 1
+      }
+     ],
+     "nhid": 28,
+     "protocol": "bgp"
+    },
+    {
+     "dev": "eth1",
+     "dst": "10.1.0.4/31",
+     "flags": [],
+     "prefsrc": "10.1.0.4",
+     "protocol": "kernel",
+     "scope": "link"
+    },
+    {
+     "dev": "eth2",
+     "dst": "10.1.0.6/31",
+     "flags": [],
+     "prefsrc": "10.1.0.6",
+     "protocol": "kernel",
+     "scope": "link"
+    },
+    {
+     "dst": "10.10.1.0/24",
+     "flags": [],
+     "metric": 20,
+     "nexthops": [
+      {
+       "dev": "eth1",
+       "flags": [],
+       "gateway": "10.1.0.5",
+       "weight": 1
+      },
+      {
+       "dev": "eth2",
+       "flags": [],
+       "gateway": "10.1.0.7",
+       "weight": 1
+      }
+     ],
+     "nhid": 28,
+     "protocol": "bgp"
+    },
+    {
+     "dev": "eth3",
+     "dst": "10.10.2.0/24",
+     "flags": [],
+     "prefsrc": "10.10.2.1",
+     "protocol": "kernel",
+     "scope": "link"
+    },
+    {
+     "dst": "10.10.3.0/24",
+     "flags": [],
+     "metric": 20,
+     "nexthops": [
+      {
+       "dev": "eth1",
+       "flags": [],
+       "gateway": "10.1.0.5",
+       "weight": 1
+      },
+      {
+       "dev": "eth2",
+       "flags": [],
+       "gateway": "10.1.0.7",
+       "weight": 1
+      }
+     ],
+     "nhid": 28,
+     "protocol": "bgp"
+    },
+    {
+     "dst": "10.10.4.0/24",
+     "flags": [],
+     "metric": 20,
+     "nexthops": [
+      {
+       "dev": "eth1",
+       "flags": [],
+       "gateway": "10.1.0.5",
+       "weight": 1
+      },
+      {
+       "dev": "eth2",
+       "flags": [],
+       "gateway": "10.1.0.7",
+       "weight": 1
+      }
+     ],
+     "nhid": 28,
+     "protocol": "bgp"
+    },
+    {
+     "dev": "eth0",
+     "dst": "172.20.20.0/24",
+     "flags": [],
+     "prefsrc": "172.20.20.10",
+     "protocol": "kernel",
+     "scope": "link"
+    }
+   ],
+   "t_end_ns": 3145972867877,
+   "t_start_ns": 3145918801769
+  },
+  "leaf3": {
+   "nexthops": [
+    {
+     "dev": "eth1",
+     "flags": [],
+     "gateway": "10.1.0.9",
+     "id": 27,
+     "protocol": "zebra",
+     "scope": "link"
+    },
+    {
+     "flags": [],
+     "group": [
+      {
+       "id": 27
+      },
+      {
+       "id": 29
+      }
+     ],
+     "id": 28,
+     "protocol": "zebra"
+    },
+    {
+     "dev": "eth2",
+     "flags": [],
+     "gateway": "10.1.0.11",
+     "id": 29,
+     "protocol": "zebra",
+     "scope": "link"
+    }
+   ],
+   "routes": [
+    {
+     "dev": "eth0",
+     "dst": "default",
+     "flags": [],
+     "gateway": "172.20.20.1"
+    },
+    {
+     "dev": "eth1",
+     "dst": "10.0.0.1",
+     "flags": [],
+     "gateway": "10.1.0.9",
+     "metric": 20,
+     "nhid": 27,
+     "protocol": "bgp"
+    },
+    {
+     "dev": "eth2",
+     "dst": "10.0.0.2",
+     "flags": [],
+     "gateway": "10.1.0.11",
+     "metric": 20,
+     "nhid": 29,
+     "protocol": "bgp"
+    },
+    {
+     "dst": "10.0.0.3",
+     "flags": [],
+     "metric": 20,
+     "nexthops": [
+      {
+       "dev": "eth1",
+       "flags": [],
+       "gateway": "10.1.0.9",
+       "weight": 1
+      },
+      {
+       "dev": "eth2",
+       "flags": [],
+       "gateway": "10.1.0.11",
+       "weight": 1
+      }
+     ],
+     "nhid": 28,
+     "protocol": "bgp"
+    },
+    {
+     "dst": "10.0.0.4",
+     "flags": [],
+     "metric": 20,
+     "nexthops": [
+      {
+       "dev": "eth1",
+       "flags": [],
+       "gateway": "10.1.0.9",
+       "weight": 1
+      },
+      {
+       "dev": "eth2",
+       "flags": [],
+       "gateway": "10.1.0.11",
+       "weight": 1
+      }
+     ],
+     "nhid": 28,
+     "protocol": "bgp"
+    },
+    {
+     "dst": "10.0.0.6",
+     "flags": [],
+     "metric": 20,
+     "nexthops": [
+      {
+       "dev": "eth1",
+       "flags": [],
+       "gateway": "10.1.0.9",
+       "weight": 1
+      },
+      {
+       "dev": "eth2",
+       "flags": [],
+       "gateway": "10.1.0.11",
+       "weight": 1
+      }
+     ],
+     "nhid": 28,
+     "protocol": "bgp"
+    },
+    {
+     "dev": "eth1",
+     "dst": "10.1.0.8/31",
+     "flags": [],
+     "prefsrc": "10.1.0.8",
+     "protocol": "kernel",
+     "scope": "link"
+    },
+    {
+     "dev": "eth2",
+     "dst": "10.1.0.10/31",
+     "flags": [],
+     "prefsrc": "10.1.0.10",
+     "protocol": "kernel",
+     "scope": "link"
+    },
+    {
+     "dst": "10.10.1.0/24",
+     "flags": [],
+     "metric": 20,
+     "nexthops": [
+      {
+       "dev": "eth1",
+       "flags": [],
+       "gateway": "10.1.0.9",
+       "weight": 1
+      },
+      {
+       "dev": "eth2",
+       "flags": [],
+       "gateway": "10.1.0.11",
+       "weight": 1
+      }
+     ],
+     "nhid": 28,
+     "protocol": "bgp"
+    },
+    {
+     "dst": "10.10.2.0/24",
+     "flags": [],
+     "metric": 20,
+     "nexthops": [
+      {
+       "dev": "eth1",
+       "flags": [],
+       "gateway": "10.1.0.9",
+       "weight": 1
+      },
+      {
+       "dev": "eth2",
+       "flags": [],
+       "gateway": "10.1.0.11",
+       "weight": 1
+      }
+     ],
+     "nhid": 28,
+     "protocol": "bgp"
+    },
+    {
+     "dev": "eth3",
+     "dst": "10.10.3.0/24",
+     "flags": [],
+     "prefsrc": "10.10.3.1",
+     "protocol": "kernel",
+     "scope": "link"
+    },
+    {
+     "dst": "10.10.4.0/24",
+     "flags": [],
+     "metric": 20,
+     "nexthops": [
+      {
+       "dev": "eth1",
+       "flags": [],
+       "gateway": "10.1.0.9",
+       "weight": 1
+      },
+      {
+       "dev": "eth2",
+       "flags": [],
+       "gateway": "10.1.0.11",
+       "weight": 1
+      }
+     ],
+     "nhid": 28,
+     "protocol": "bgp"
+    },
+    {
+     "dev": "eth0",
+     "dst": "172.20.20.0/24",
+     "flags": [],
+     "prefsrc": "172.20.20.4",
+     "protocol": "kernel",
+     "scope": "link"
+    }
+   ],
+   "t_end_ns": 3146025849836,
+   "t_start_ns": 3145972870702
+  },
+  "leaf4": {
+   "nexthops": [
+    {
+     "dev": "eth1",
+     "flags": [],
+     "gateway": "10.1.0.13",
+     "id": 27,
+     "protocol": "zebra",
+     "scope": "link"
+    },
+    {
+     "flags": [],
+     "group": [
+      {
+       "id": 27
+      },
+      {
+       "id": 29
+      }
+     ],
+     "id": 28,
+     "protocol": "zebra"
+    },
+    {
+     "dev": "eth2",
+     "flags": [],
+     "gateway": "10.1.0.15",
+     "id": 29,
+     "protocol": "zebra",
+     "scope": "link"
+    }
+   ],
+   "routes": [
+    {
+     "dev": "eth0",
+     "dst": "default",
+     "flags": [],
+     "gateway": "172.20.20.1"
+    },
+    {
+     "dev": "eth1",
+     "dst": "10.0.0.1",
+     "flags": [],
+     "gateway": "10.1.0.13",
+     "metric": 20,
+     "nhid": 27,
+     "protocol": "bgp"
+    },
+    {
+     "dev": "eth2",
+     "dst": "10.0.0.2",
+     "flags": [],
+     "gateway": "10.1.0.15",
+     "metric": 20,
+     "nhid": 29,
+     "protocol": "bgp"
+    },
+    {
+     "dst": "10.0.0.3",
+     "flags": [],
+     "metric": 20,
+     "nexthops": [
+      {
+       "dev": "eth1",
+       "flags": [],
+       "gateway": "10.1.0.13",
+       "weight": 1
+      },
+      {
+       "dev": "eth2",
+       "flags": [],
+       "gateway": "10.1.0.15",
+       "weight": 1
+      }
+     ],
+     "nhid": 28,
+     "protocol": "bgp"
+    },
+    {
+     "dst": "10.0.0.4",
+     "flags": [],
+     "metric": 20,
+     "nexthops": [
+      {
+       "dev": "eth1",
+       "flags": [],
+       "gateway": "10.1.0.13",
+       "weight": 1
+      },
+      {
+       "dev": "eth2",
+       "flags": [],
+       "gateway": "10.1.0.15",
+       "weight": 1
+      }
+     ],
+     "nhid": 28,
+     "protocol": "bgp"
+    },
+    {
+     "dst": "10.0.0.5",
+     "flags": [],
+     "metric": 20,
+     "nexthops": [
+      {
+       "dev": "eth1",
+       "flags": [],
+       "gateway": "10.1.0.13",
+       "weight": 1
+      },
+      {
+       "dev": "eth2",
+       "flags": [],
+       "gateway": "10.1.0.15",
+       "weight": 1
+      }
+     ],
+     "nhid": 28,
+     "protocol": "bgp"
+    },
+    {
+     "dev": "eth1",
+     "dst": "10.1.0.12/31",
+     "flags": [],
+     "prefsrc": "10.1.0.12",
+     "protocol": "kernel",
+     "scope": "link"
+    },
+    {
+     "dev": "eth2",
+     "dst": "10.1.0.14/31",
+     "flags": [],
+     "prefsrc": "10.1.0.14",
+     "protocol": "kernel",
+     "scope": "link"
+    },
+    {
+     "dst": "10.10.1.0/24",
+     "flags": [],
+     "metric": 20,
+     "nexthops": [
+      {
+       "dev": "eth1",
+       "flags": [],
+       "gateway": "10.1.0.13",
+       "weight": 1
+      },
+      {
+       "dev": "eth2",
+       "flags": [],
+       "gateway": "10.1.0.15",
+       "weight": 1
+      }
+     ],
+     "nhid": 28,
+     "protocol": "bgp"
+    },
+    {
+     "dst": "10.10.2.0/24",
+     "flags": [],
+     "metric": 20,
+     "nexthops": [
+      {
+       "dev": "eth1",
+       "flags": [],
+       "gateway": "10.1.0.13",
+       "weight": 1
+      },
+      {
+       "dev": "eth2",
+       "flags": [],
+       "gateway": "10.1.0.15",
+       "weight": 1
+      }
+     ],
+     "nhid": 28,
+     "protocol": "bgp"
+    },
+    {
+     "dst": "10.10.3.0/24",
+     "flags": [],
+     "metric": 20,
+     "nexthops": [
+      {
+       "dev": "eth1",
+       "flags": [],
+       "gateway": "10.1.0.13",
+       "weight": 1
+      },
+      {
+       "dev": "eth2",
+       "flags": [],
+       "gateway": "10.1.0.15",
+       "weight": 1
+      }
+     ],
+     "nhid": 28,
+     "protocol": "bgp"
+    },
+    {
+     "dev": "eth3",
+     "dst": "10.10.4.0/24",
+     "flags": [],
+     "prefsrc": "10.10.4.1",
+     "protocol": "kernel",
+     "scope": "link"
+    },
+    {
+     "dev": "eth0",
+     "dst": "172.20.20.0/24",
+     "flags": [],
+     "prefsrc": "172.20.20.5",
+     "protocol": "kernel",
+     "scope": "link"
+    }
+   ],
+   "t_end_ns": 3146079959275,
+   "t_start_ns": 3146025853132
+  },
+  "spine1": {
+   "nexthops": [
+    {
+     "dev": "eth2",
+     "flags": [],
+     "gateway": "10.1.0.4",
+     "id": 29,
+     "protocol": "zebra",
+     "scope": "link"
+    },
+    {
+     "dev": "eth1",
+     "flags": [],
+     "gateway": "10.1.0.0",
+     "id": 31,
+     "protocol": "zebra",
+     "scope": "link"
+    },
+    {
+     "dev": "eth4",
+     "flags": [],
+     "gateway": "10.1.0.12",
+     "id": 34,
+     "protocol": "zebra",
+     "scope": "link"
+    },
+    {
+     "dev": "eth3",
+     "flags": [],
+     "gateway": "10.1.0.8",
+     "id": 35,
+     "protocol": "zebra",
+     "scope": "link"
+    }
+   ],
+   "routes": [
+    {
+     "dev": "eth0",
+     "dst": "default",
+     "flags": [],
+     "gateway": "172.20.20.1"
+    },
+    {
+     "dev": "eth1",
+     "dst": "10.0.0.3",
+     "flags": [],
+     "gateway": "10.1.0.0",
+     "metric": 20,
+     "nhid": 31,
+     "protocol": "bgp"
+    },
+    {
+     "dev": "eth2",
+     "dst": "10.0.0.4",
+     "flags": [],
+     "gateway": "10.1.0.4",
+     "metric": 20,
+     "nhid": 29,
+     "protocol": "bgp"
+    },
+    {
+     "dev": "eth3",
+     "dst": "10.0.0.5",
+     "flags": [],
+     "gateway": "10.1.0.8",
+     "metric": 20,
+     "nhid": 35,
+     "protocol": "bgp"
+    },
+    {
+     "dev": "eth4",
+     "dst": "10.0.0.6",
+     "flags": [],
+     "gateway": "10.1.0.12",
+     "metric": 20,
+     "nhid": 34,
+     "protocol": "bgp"
+    },
+    {
+     "dev": "eth1",
+     "dst": "10.1.0.0/31",
+     "flags": [],
+     "prefsrc": "10.1.0.1",
+     "protocol": "kernel",
+     "scope": "link"
+    },
+    {
+     "dev": "eth2",
+     "dst": "10.1.0.4/31",
+     "flags": [],
+     "prefsrc": "10.1.0.5",
+     "protocol": "kernel",
+     "scope": "link"
+    },
+    {
+     "dev": "eth3",
+     "dst": "10.1.0.8/31",
+     "flags": [],
+     "prefsrc": "10.1.0.9",
+     "protocol": "kernel",
+     "scope": "link"
+    },
+    {
+     "dev": "eth4",
+     "dst": "10.1.0.12/31",
+     "flags": [],
+     "prefsrc": "10.1.0.13",
+     "protocol": "kernel",
+     "scope": "link"
+    },
+    {
+     "dev": "eth1",
+     "dst": "10.10.1.0/24",
+     "flags": [],
+     "gateway": "10.1.0.0",
+     "metric": 20,
+     "nhid": 31,
+     "protocol": "bgp"
+    },
+    {
+     "dev": "eth2",
+     "dst": "10.10.2.0/24",
+     "flags": [],
+     "gateway": "10.1.0.4",
+     "metric": 20,
+     "nhid": 29,
+     "protocol": "bgp"
+    },
+    {
+     "dev": "eth3",
+     "dst": "10.10.3.0/24",
+     "flags": [],
+     "gateway": "10.1.0.8",
+     "metric": 20,
+     "nhid": 35,
+     "protocol": "bgp"
+    },
+    {
+     "dev": "eth4",
+     "dst": "10.10.4.0/24",
+     "flags": [],
+     "gateway": "10.1.0.12",
+     "metric": 20,
+     "nhid": 34,
+     "protocol": "bgp"
+    },
+    {
+     "dev": "eth0",
+     "dst": "172.20.20.0/24",
+     "flags": [],
+     "prefsrc": "172.20.20.11",
+     "protocol": "kernel",
+     "scope": "link"
+    }
+   ],
+   "t_end_ns": 3145809367079,
+   "t_start_ns": 3145754041307
+  },
+  "spine2": {
+   "nexthops": [
+    {
+     "dev": "eth2",
+     "flags": [],
+     "gateway": "10.1.0.6",
+     "id": 29,
+     "protocol": "zebra",
+     "scope": "link"
+    },
+    {
+     "dev": "eth1",
+     "flags": [],
+     "gateway": "10.1.0.2",
+     "id": 31,
+     "protocol": "zebra",
+     "scope": "link"
+    },
+    {
+     "dev": "eth3",
+     "flags": [],
+     "gateway": "10.1.0.10",
+     "id": 34,
+     "protocol": "zebra",
+     "scope": "link"
+    },
+    {
+     "dev": "eth4",
+     "flags": [],
+     "gateway": "10.1.0.14",
+     "id": 35,
+     "protocol": "zebra",
+     "scope": "link"
+    }
+   ],
+   "routes": [
+    {
+     "dev": "eth0",
+     "dst": "default",
+     "flags": [],
+     "gateway": "172.20.20.1"
+    },
+    {
+     "dev": "eth1",
+     "dst": "10.0.0.3",
+     "flags": [],
+     "gateway": "10.1.0.2",
+     "metric": 20,
+     "nhid": 31,
+     "protocol": "bgp"
+    },
+    {
+     "dev": "eth2",
+     "dst": "10.0.0.4",
+     "flags": [],
+     "gateway": "10.1.0.6",
+     "metric": 20,
+     "nhid": 29,
+     "protocol": "bgp"
+    },
+    {
+     "dev": "eth3",
+     "dst": "10.0.0.5",
+     "flags": [],
+     "gateway": "10.1.0.10",
+     "metric": 20,
+     "nhid": 34,
+     "protocol": "bgp"
+    },
+    {
+     "dev": "eth4",
+     "dst": "10.0.0.6",
+     "flags": [],
+     "gateway": "10.1.0.14",
+     "metric": 20,
+     "nhid": 35,
+     "protocol": "bgp"
+    },
+    {
+     "dev": "eth1",
+     "dst": "10.1.0.2/31",
+     "flags": [],
+     "prefsrc": "10.1.0.3",
+     "protocol": "kernel",
+     "scope": "link"
+    },
+    {
+     "dev": "eth2",
+     "dst": "10.1.0.6/31",
+     "flags": [],
+     "prefsrc": "10.1.0.7",
+     "protocol": "kernel",
+     "scope": "link"
+    },
+    {
+     "dev": "eth3",
+     "dst": "10.1.0.10/31",
+     "flags": [],
+     "prefsrc": "10.1.0.11",
+     "protocol": "kernel",
+     "scope": "link"
+    },
+    {
+     "dev": "eth4",
+     "dst": "10.1.0.14/31",
+     "flags": [],
+     "prefsrc": "10.1.0.15",
+     "protocol": "kernel",
+     "scope": "link"
+    },
+    {
+     "dev": "eth1",
+     "dst": "10.10.1.0/24",
+     "flags": [],
+     "gateway": "10.1.0.2",
+     "metric": 20,
+     "nhid": 31,
+     "protocol": "bgp"
+    },
+    {
+     "dev": "eth2",
+     "dst": "10.10.2.0/24",
+     "flags": [],
+     "gateway": "10.1.0.6",
+     "metric": 20,
+     "nhid": 29,
+     "protocol": "bgp"
+    },
+    {
+     "dev": "eth3",
+     "dst": "10.10.3.0/24",
+     "flags": [],
+     "gateway": "10.1.0.10",
+     "metric": 20,
+     "nhid": 34,
+     "protocol": "bgp"
+    },
+    {
+     "dev": "eth4",
+     "dst": "10.10.4.0/24",
+     "flags": [],
+     "gateway": "10.1.0.14",
+     "metric": 20,
+     "nhid": 35,
+     "protocol": "bgp"
+    },
+    {
+     "dev": "eth0",
+     "dst": "172.20.20.0/24",
+     "flags": [],
+     "prefsrc": "172.20.20.6",
+     "protocol": "kernel",
+     "scope": "link"
+    }
+   ],
+   "t_end_ns": 3145862952723,
+   "t_start_ns": 3145809370786
+  }
+ }
+}

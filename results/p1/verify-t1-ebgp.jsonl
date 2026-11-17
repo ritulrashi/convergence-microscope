@@ -1,0 +1,2 @@
+{"containerlab": "0.83.0", "cpu_count": 2, "cpu_model": "AMD EPYC 7763 64-Core Processor", "docker": "26.1.5-1", "frr_image": "quay.io/frrouting/frr:10.7.1", "git_commit": "8bb1f74c9c9bf53fe800a28d55497f38551485f2", "git_tree_clean": true, "go": "go1.26.11", "kernel": "6.8.0-1070-azure", "mem_total_bytes": 8328060928, "python": "3.11.18", "record": "machine"}
+{"attempts": 5, "checks": {"peers": 16, "ping": 12, "rib": 58}, "failures": [], "lab": "cm-t1-ebgp", "ok": true, "record": "verify", "seconds_to_pass": 6.347}
