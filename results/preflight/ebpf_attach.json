@@ -1,0 +1,25 @@
+{
+  "attached": {
+    "kfree_skb": true,
+    "netif_receive_skb": true
+  },
+  "duration_s": 3.002083329,
+  "target_netns": 0,
+  "target_recv": 0,
+  "target_drop": 0,
+  "counts": [
+    {
+      "tracepoint": "netif_receive_skb",
+      "netns": 4026531840,
+      "count": 26
+    },
+    {
+      "tracepoint": "kfree_skb",
+      "netns": 0,
+      "count": 18
+    }
+  ],
+  "drop_reasons": null,
+  "ringbuf_lost": 0,
+  "reason_names_source": "kernel BTF enum skb_drop_reason"
+}

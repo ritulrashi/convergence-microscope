@@ -1,0 +1,56 @@
+{
+  "attached": {
+    "kfree_skb": true,
+    "netif_receive_skb": true
+  },
+  "duration_s": 6.003109923,
+  "target_netns": 4026532290,
+  "target_recv": 29,
+  "target_drop": 7,
+  "counts": [
+    {
+      "tracepoint": "netif_receive_skb",
+      "netns": 4026531840,
+      "count": 48
+    },
+    {
+      "tracepoint": "netif_receive_skb",
+      "netns": 4026532240,
+      "count": 29
+    },
+    {
+      "tracepoint": "netif_receive_skb",
+      "netns": 4026532290,
+      "count": 29
+    },
+    {
+      "tracepoint": "kfree_skb",
+      "netns": 4026532240,
+      "count": 22
+    },
+    {
+      "tracepoint": "kfree_skb",
+      "netns": 4026532290,
+      "count": 7
+    },
+    {
+      "tracepoint": "kfree_skb",
+      "netns": 0,
+      "count": 4
+    }
+  ],
+  "drop_reasons": [
+    {
+      "code": 2,
+      "name": "SKB_DROP_REASON_NOT_SPECIFIED",
+      "count": 2
+    },
+    {
+      "code": 3,
+      "name": "SKB_DROP_REASON_NO_SOCKET",
+      "count": 5
+    }
+  ],
+  "ringbuf_lost": 0,
+  "reason_names_source": "kernel BTF enum skb_drop_reason"
+}

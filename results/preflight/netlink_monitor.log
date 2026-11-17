@@ -1,0 +1,3 @@
+[2026-11-17T06:05:14.480159] id 15 via 10.1.0.1 dev eth1 scope link proto zebra 
+[2026-11-17T06:05:14.480360] 192.0.2.0/24 nhid 15 via 10.1.0.1 dev eth1 proto 196 metric 20 
+[2026-11-17T06:05:16.541373] Deleted 192.0.2.0/24 nhid 15 via 10.1.0.1 dev eth1 proto 196 metric 20 

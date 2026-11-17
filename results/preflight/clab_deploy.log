@@ -1,0 +1,28 @@
+06:05:03 INFO Containerlab started version=0.83.0
+06:05:03 INFO Parsing & checking topology file=preflight.clab.yml
+06:05:03 INFO Removing directory path=/workspaces/convergence-microscope/scripts/preflight-lab/clab-cm-preflight
+06:05:03 INFO Creating docker network name=clab IPv4 subnet=172.20.20.0/24 IPv6 subnet=3fff:172:20:20::/64 MTU=0
+06:05:03 INFO Creating lab directory path=/workspaces/convergence-microscope/scripts/preflight-lab/clab-cm-preflight
+06:05:03 INFO Creating container name=r1
+06:05:03 INFO Creating container name=r2
+06:05:03 INFO Created link: r1:eth1 ▪┄┄▪ r2:eth1
+06:05:03 INFO Executed command node=r1 command="ip addr add 10.1.0.0/31 dev eth1" stdout=""
+06:05:03 INFO Executed command node=r2 command="ip addr add 10.1.0.1/31 dev eth1" stdout=""
+06:05:03 INFO Adding host entries path=/etc/hosts
+06:05:03 INFO Adding SSH config for nodes path=/etc/ssh/ssh_config.d/clab-cm-preflight.conf
+[1m╭[0m[1m──────────────────────[0m[1m┬[0m[1m──────────────────────────────[0m[1m┬[0m[1m─────────[0m[1m┬[0m[1m───────────────────[0m[1m╮[0m
+[1m│[0m[1m         Name         [0m[1m│[0m[1m          Kind/Image          [0m[1m│[0m[1m  State  [0m[1m│[0m[1m   IPv4/6 Address  [0m[1m│[0m
+[1m├[0m[1m──────────────────────[0m[1m┼[0m[1m──────────────────────────────[0m[1m┼[0m[1m─────────[0m[1m┼[0m[1m───────────────────[0m[1m┤[0m
+│ clab-cm-preflight-r1 │ linux                        │ running │ 172.20.20.3       │
+│                      │ quay.io/frrouting/frr:10.7.1 │         │ 3fff:172:20:20::3 │
+├──────────────────────┼──────────────────────────────┼─────────┼───────────────────┤
+│ clab-cm-preflight-r2 │ linux                        │ running │ 172.20.20.2       │
+│                      │ quay.io/frrouting/frr:10.7.1 │         │ 3fff:172:20:20::2 │
+╰──────────────────────┴──────────────────────────────┴─────────┴───────────────────╯
+06:05:23 INFO Parsing & checking topology file=preflight.clab.yml
+06:05:23 INFO Parsing & checking topology file=preflight.clab.yml
+06:05:23 INFO Destroying lab name=cm-preflight
+06:05:23 INFO Removed container name=clab-cm-preflight-r2
+06:05:23 INFO Removed container name=clab-cm-preflight-r1
+06:05:23 INFO Removing host entries path=/etc/hosts
+06:05:23 INFO Removing SSH config path=/etc/ssh/ssh_config.d/clab-cm-preflight.conf

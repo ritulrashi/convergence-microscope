@@ -1,0 +1,25 @@
+PING 10.1.0.0 (10.1.0.0): 56 data bytes
+64 bytes from 10.1.0.0: seq=0 ttl=64 time=0.107 ms
+64 bytes from 10.1.0.0: seq=1 ttl=64 time=0.077 ms
+64 bytes from 10.1.0.0: seq=2 ttl=64 time=0.070 ms
+64 bytes from 10.1.0.0: seq=3 ttl=64 time=0.074 ms
+64 bytes from 10.1.0.0: seq=4 ttl=64 time=0.074 ms
+64 bytes from 10.1.0.0: seq=5 ttl=64 time=0.069 ms
+64 bytes from 10.1.0.0: seq=6 ttl=64 time=0.082 ms
+64 bytes from 10.1.0.0: seq=7 ttl=64 time=0.067 ms
+64 bytes from 10.1.0.0: seq=8 ttl=64 time=0.069 ms
+64 bytes from 10.1.0.0: seq=9 ttl=64 time=0.072 ms
+64 bytes from 10.1.0.0: seq=10 ttl=64 time=0.037 ms
+64 bytes from 10.1.0.0: seq=11 ttl=64 time=0.039 ms
+64 bytes from 10.1.0.0: seq=12 ttl=64 time=0.066 ms
+64 bytes from 10.1.0.0: seq=13 ttl=64 time=0.043 ms
+64 bytes from 10.1.0.0: seq=14 ttl=64 time=0.050 ms
+64 bytes from 10.1.0.0: seq=15 ttl=64 time=0.081 ms
+64 bytes from 10.1.0.0: seq=16 ttl=64 time=0.065 ms
+64 bytes from 10.1.0.0: seq=17 ttl=64 time=0.076 ms
+64 bytes from 10.1.0.0: seq=18 ttl=64 time=0.067 ms
+64 bytes from 10.1.0.0: seq=19 ttl=64 time=0.075 ms
+
+--- 10.1.0.0 ping statistics ---
+20 packets transmitted, 20 packets received, 0% packet loss
+round-trip min/avg/max = 0.037/0.068/0.107 ms

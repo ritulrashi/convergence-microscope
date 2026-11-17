@@ -22,3 +22,17 @@ Each ADR: context, decision, alternatives, consequence.
 - **Decision:** userspace reads `enum skb_drop_reason` from `/sys/kernel/btf/vmlinux` at runtime to name codes, and calibration records which codes this kernel emits for constructed blackholes and loops.
 - **Alternatives:** a static table copied from kernel headers.
 - **Consequence:** names always match the running kernel; the classifier mapping is a calibration output, not source code.
+
+## ADR-004: Go installed into /opt/go, not via the devcontainer Go feature
+
+- **Context:** The containerlab devcontainer image ships Go 1.22 in `/usr/local/go` and exports `GOROOT=/usr/local/go`. The devcontainer Go feature unpacked 1.26 over it, leaving 1.22 runtime files behind, and every build failed with "redeclared in this block" errors in `runtime`.
+- **Decision:** `post-create.sh` installs the pinned Go release into an empty `/opt/go`. `devcontainer.json` sets `GOROOT=/opt/go` and puts `/opt/go/bin` first on `PATH`; the Makefile exports the same, so non-login shells (for example `gh codespace ssh -- cmd`) also get the right toolchain.
+- **Alternatives:** delete `/usr/local/go` first (modifies the base image's layout); build a custom image (slower Codespace creation).
+- **Consequence:** one toolchain, one version, independent of the base image's Go.
+
+## ADR-005: Preflight mounts tracefs when missing
+
+- **Context:** Codespaces do not mount tracefs inside the devcontainer. `link.Tracepoint` needs it to look up tracepoint IDs, and fails with "neither debugfs nor tracefs are mounted".
+- **Decision:** `scripts/preflight.sh` (and later the tracer startup) mounts tracefs at `/sys/kernel/tracing` if neither tracing path is mounted, and records that as its own check.
+- **Alternatives:** a bind mount in `devcontainer.json` (only takes effect after a full rebuild, and depends on the host path existing); `tp_btf` raw tracepoints (no tracefs needed, but a different program type than the spec names).
+- **Consequence:** the privileged devcontainer gains one extra mount, done visibly and recorded in `results/preflight.json`.

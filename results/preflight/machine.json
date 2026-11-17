@@ -1,0 +1,1 @@
+{"record": "machine", "cpu_count": 2, "cpu_model": "AMD EPYC 7763 64-Core Processor", "mem_total_bytes": 8328060928, "kernel": "6.8.0-1070-azure", "docker": "26.1.5-1", "containerlab": "0.83.0", "frr_image": "quay.io/frrouting/frr:10.7.1", "go": "go1.26.11", "python": "3.11.18", "git_commit": "bd796b273264b5fc02f7f3a719de3a7632f3990c", "git_tree_clean": true}

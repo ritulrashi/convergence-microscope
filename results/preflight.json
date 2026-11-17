@@ -1,0 +1,85 @@
+{
+  "machine": {
+    "record": "machine",
+    "cpu_count": 2,
+    "cpu_model": "AMD EPYC 7763 64-Core Processor",
+    "mem_total_bytes": 8328060928,
+    "kernel": "6.8.0-1070-azure",
+    "docker": "26.1.5-1",
+    "containerlab": "0.83.0",
+    "frr_image": "quay.io/frrouting/frr:10.7.1",
+    "go": "go1.26.11",
+    "python": "3.11.18",
+    "git_commit": "bd796b273264b5fc02f7f3a719de3a7632f3990c",
+    "git_tree_clean": true
+  },
+  "checks": [
+    {
+      "record": "check",
+      "name": "kernel_ge_5_17",
+      "pass": true,
+      "evidence": "uname -r = 6.8.0-1070-azure"
+    },
+    {
+      "record": "check",
+      "name": "btf_vmlinux",
+      "pass": true,
+      "evidence": "/sys/kernel/btf/vmlinux size 6243148 bytes"
+    },
+    {
+      "record": "check",
+      "name": "ebpf_build",
+      "pass": true,
+      "evidence": "make ebpfcheck ok (clang 14.0.6)"
+    },
+    {
+      "record": "check",
+      "name": "tracefs_mounted",
+      "pass": true,
+      "evidence": "already mounted"
+    },
+    {
+      "record": "check",
+      "name": "ebpf_attach_tracepoints",
+      "pass": true,
+      "evidence": "attached {'kfree_skb': True, 'netif_receive_skb': True} netns seen 2 events 44"
+    },
+    {
+      "record": "check",
+      "name": "lab_deploy",
+      "pass": true,
+      "evidence": "deployed scripts/preflight-lab/preflight.clab.yml with quay.io/frrouting/frr:10.7.1"
+    },
+    {
+      "record": "check",
+      "name": "ebpf_sees_node_netns",
+      "pass": true,
+      "evidence": "r1 netns inode 4026532290: netif_receive_skb 29, kfree_skb 7, drop reasons [(2, 'SKB_DROP_REASON_NOT_SPECIFIED', 2), (3, 'SKB_DROP_REASON_NO_SOCKET', 5)], ringbuf lost 0"
+    },
+    {
+      "record": "check",
+      "name": "netlink_route_and_nexthop",
+      "pass": true,
+      "evidence": "RTM_NEWROUTE lines 1, RTM_DELROUTE lines 1, nexthop object lines 1, routes referencing nhid 2 (raw: results/preflight/netlink_monitor.log)"
+    },
+    {
+      "record": "check",
+      "name": "netem_on_veth",
+      "pass": true,
+      "evidence": "add rc=0; with netem: 100% packet loss; after removal: 0% packet loss "
+    },
+    {
+      "record": "check",
+      "name": "shared_time_namespace",
+      "pass": true,
+      "evidence": "time ns inode devcontainer=4026531834 r1=4026531834"
+    },
+    {
+      "record": "check",
+      "name": "environment",
+      "pass": true,
+      "evidence": "cpu_count=2, cpu_model=AMD EPYC 7763 64-Core Processor, mem_total_bytes=8328060928, kernel=6.8.0-1070-azure, docker=26.1.5-1, containerlab=0.83.0, frr_image=quay.io/frrouting/frr:10.7.1, go=go1.26.11, python=3.11.18"
+    }
+  ],
+  "tier": "A"
+}
