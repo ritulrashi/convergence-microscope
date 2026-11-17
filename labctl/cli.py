@@ -8,6 +8,7 @@ from pathlib import Path
 import typer
 
 from labctl import lab as labmod
+from labctl.results import ResultWriter
 from labctl.snapshot import write_snapshot
 from labctl.verify import verify_wait
 from labgen.model import Mode
@@ -38,20 +39,25 @@ def down(intent: Path = IntentArg, mode: Mode | None = ModeOpt) -> None:
     typer.echo(f"destroyed {lab.name}")
 
 
-def _verify(lab: labmod.Lab, wait: float) -> None:
+def _verify(lab: labmod.Lab, wait: float, out_path: Path | None = None) -> None:
     res, t, attempts = verify_wait(lab, wait)
-    out = {"ok": res.ok, "checks": res.checks, "failures": res.failures, "attempts": attempts,
+    out = {"record": "verify", "lab": lab.name, "ok": res.ok, "checks": res.checks,
+           "failures": res.failures, "attempts": attempts,
            "seconds_to_pass": round(t, 3) if res.ok else None}
     typer.echo(json.dumps(out, indent=2))
+    if out_path is not None:
+        with ResultWriter(out_path) as w:
+            w.write(out)
     if not res.ok:
         raise typer.Exit(1)
 
 
 @app.command()
 def verify(intent: Path = IntentArg, mode: Mode | None = ModeOpt,
-           wait: float = typer.Option(0, help="retry for up to this many seconds")) -> None:
+           wait: float = typer.Option(0, help="retry for up to this many seconds"),
+           out: Path | None = typer.Option(None, help="also write a results JSONL file")) -> None:
     """Check sessions/adjacencies, RIBs, ECMP width and full-mesh host ping."""
-    _verify(labmod.load(intent, mode), wait)
+    _verify(labmod.load(intent, mode), wait, out)
 
 
 @app.command()
