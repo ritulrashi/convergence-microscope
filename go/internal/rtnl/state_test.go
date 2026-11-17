@@ -240,3 +240,40 @@ func TestSplitRejectsTruncated(t *testing.T) {
 		t.Fatal("truncated buffer accepted")
 	}
 }
+
+func TestAdminDownFlushesNexthopsAndInlineRoutes(t *testing.T) {
+	s := base(t)
+	feed(t, s, cat(
+		nlmsg(RTM_NEWROUTE, routeBody("10.0.0.4/32", RTN_UNICAST, nlattr(RTA_NH_ID, u32(32)))),
+		nlmsg(RTM_NEWROUTE, routeBody("10.0.0.2/32", RTN_UNICAST, nlattr(RTA_NH_ID, u32(28)))),
+		nlmsg(RTM_NEWROUTE, routeBody("10.1.0.2/31", RTN_UNICAST, nlattr(RTA_OIF, u32(3)))),
+	))
+	l, _ := ParseLink(linkBody(3, "eth2", 0))
+	got := s.ApplyLink(l, false)
+	want := []Change{
+		ch("10.0.0.2/32", []string{"10.1.0.3@eth2"}, nil),
+		ch("10.0.0.4/32", both, []string{"10.1.0.1@eth1"}),
+		ch("10.1.0.2/31", []string{"direct@eth2"}, nil),
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("got %v want %v", got, want)
+	}
+}
+
+func TestCarrierLossFlushesNexthopsOnly(t *testing.T) {
+	s := base(t)
+	feed(t, s, cat(
+		nlmsg(RTM_NEWROUTE, routeBody("10.0.0.4/32", RTN_UNICAST, nlattr(RTA_NH_ID, u32(32)))),
+		nlmsg(RTM_NEWROUTE, routeBody("10.1.0.2/31", RTN_UNICAST, nlattr(RTA_OIF, u32(3)))),
+	))
+	l, _ := ParseLink(linkBody(3, "eth2", IFF_UP)) // up, no RUNNING, no LOWER_UP
+	got := s.ApplyLink(l, false)
+	want := []Change{ch("10.0.0.4/32", both, []string{"10.1.0.1@eth1"})}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("got %v want %v", got, want)
+	}
+	up, _ := ParseLink(linkBody(3, "eth2", IFF_UP|IFF_RUNNING|IFF_LOWER_UP))
+	if got := s.ApplyLink(up, false); len(got) != 0 {
+		t.Fatalf("link up must not change the FIB by itself: %v", got)
+	}
+}

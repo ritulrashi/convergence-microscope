@@ -1,3 +1,5 @@
+//go:build linux
+
 // Command recorder records every FIB change on one router.
 //
 // It joins the router's network namespace with setns, subscribes to the link,
@@ -22,6 +24,7 @@ import (
 	"slices"
 	"sync/atomic"
 	"syscall"
+	"time"
 
 	"github.com/ritulrashi/convergence-microscope/go/internal/mono"
 	"github.com/ritulrashi/convergence-microscope/go/internal/rtnl"
@@ -59,33 +62,37 @@ var msgName = map[uint16]string{
 	rtnl.RTM_NEWLINK: "NEWLINK", rtnl.RTM_DELLINK: "DELLINK",
 }
 
-// apply feeds one message into the state and logs what changed.
-func apply(st *rtnl.State, o *out, t int64, via string, m rtnl.Msg) error {
+// apply feeds one message into the state and logs what changed. It reports
+// whether the message took a link down (the caller then cross-checks).
+func apply(st *rtnl.State, o *out, t int64, via string, m rtnl.Msg) (bool, error) {
 	switch m.Type {
 	case rtnl.RTM_NEWROUTE, rtnl.RTM_DELROUTE:
 		r, err := rtnl.ParseRoute(m.Data)
 		if err != nil {
-			return nil // non-IPv4 family on a shared group: ignore
+			return false, nil // non-IPv4 family on a shared group: ignore
 		}
 		o.changes(t, via, msgName[m.Type], st.ApplyRoute(r, m.Type == rtnl.RTM_DELROUTE))
 	case rtnl.RTM_NEWNEXTHOP, rtnl.RTM_DELNEXTHOP:
 		n, err := rtnl.ParseNexthop(m.Data)
 		if err != nil {
-			return err
+			return false, err
 		}
 		o.changes(t, via, msgName[m.Type], st.ApplyNexthop(n, m.Type == rtnl.RTM_DELNEXTHOP))
 	case rtnl.RTM_NEWLINK, rtnl.RTM_DELLINK:
 		l, err := rtnl.ParseLink(m.Data)
 		if err != nil {
-			return err
+			return false, err
 		}
-		st.ApplyLink(l, m.Type == rtnl.RTM_DELLINK)
 		if via == "event" {
 			o.rec(map[string]any{"kind": "link", "t": t, "ifname": st.Ifname(l.Index),
-				"ifindex": l.Index, "up": l.Up, "lower_up": l.LowerUp, "msg": msgName[m.Type]})
+				"ifindex": l.Index, "up": l.Up, "running": l.Running, "lower_up": l.LowerUp,
+				"msg": msgName[m.Type]})
 		}
+		// The kernel flushes FIB state on link down without netlink messages.
+		o.changes(t, "link-flush", msgName[m.Type], st.ApplyLink(l, m.Type == rtnl.RTM_DELLINK))
+		return l.AdminDown() || l.CarrierDown(), nil
 	}
-	return nil
+	return false, nil
 }
 
 // dumpAll loads links, then nexthops, then routes into a fresh state.
@@ -98,7 +105,7 @@ func dumpAll(c *rtnl.Conn) (*rtnl.State, error) {
 			return nil, fmt.Errorf("dump %d: %w", typ, err)
 		}
 		for _, m := range ms {
-			if err := apply(st, discard, 0, "dump", m); err != nil {
+			if _, err := apply(st, discard, 0, "dump", m); err != nil {
 				return nil, err
 			}
 		}
@@ -117,6 +124,8 @@ func main() {
 	rawPath := flag.String("raw", "", "also write every received datagram as hex (for test fixtures)")
 	rcvbuf := flag.Int("rcvbuf", 32<<20, "monitor socket receive buffer bytes")
 	ready := flag.String("ready", "", "file to create once subscribed and dumped")
+	check := flag.Duration("check-after-link-down", 100*time.Millisecond,
+		"cross-check the modelled link-down flush against a fresh dump this long after it (0 = off)")
 	flag.Parse()
 	if *router == "" || *netns == "" {
 		fail(errors.New("need -router and -netns"))
@@ -166,10 +175,28 @@ func main() {
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
 	go func() { <-sig; stop.Store(true) }()
 
-	var datagrams, messages, overruns, parseErrs uint64
+	var datagrams, messages, overruns, parseErrs, checks, mismatches uint64
+	var checkAt int64 // when to cross-check the model against a fresh dump
 	for !stop.Load() {
 		b, err := c.Recv()
 		t := mono.Now()
+		if checkAt != 0 && t >= checkAt {
+			checkAt = 0
+			fresh, derr := dumpAll(c)
+			if derr != nil {
+				fail(derr)
+			}
+			diff := resync(st, fresh)
+			checks++
+			mismatches += uint64(len(diff))
+			rows := []map[string]any{}
+			for _, d := range diff {
+				rows = append(rows, map[string]any{"prefix": d.Prefix.String(),
+					"recorded": nonNil(d.Old), "kernel": nonNil(d.New)})
+			}
+			o.rec(map[string]any{"kind": "check", "t": t, "t_done": mono.Now(), "mismatches": rows})
+			o.w.Flush()
+		}
 		if errors.Is(err, rtnl.ErrOverrun) {
 			overruns++
 			o.rec(map[string]any{"kind": "overrun", "t": t})
@@ -197,8 +224,12 @@ func main() {
 		}
 		for _, m := range ms {
 			messages++
-			if err := apply(st, o, t, "event", m); err != nil {
+			down, err := apply(st, o, t, "event", m)
+			if err != nil {
 				parseErrs++
+			}
+			if down && *check > 0 {
+				checkAt = t + check.Nanoseconds()
 			}
 		}
 		o.w.Flush()
@@ -209,7 +240,8 @@ func main() {
 		reason = fmt.Sprintf("%d netlink overruns, %d parse errors", overruns, parseErrs)
 	}
 	o.rec(map[string]any{"kind": "stats", "t": mono.Now(), "datagrams": datagrams, "messages": messages,
-		"overruns": overruns, "parse_errors": parseErrs, "valid": valid, "invalid_reason": reason})
+		"overruns": overruns, "parse_errors": parseErrs, "link_down_checks": checks,
+		"check_mismatches": mismatches, "valid": valid, "invalid_reason": reason})
 	o.w.Flush()
 	if raw != nil {
 		raw.Flush()

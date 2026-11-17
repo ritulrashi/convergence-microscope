@@ -61,6 +61,7 @@ const (
 const (
 	IFLA_IFNAME   = 3
 	IFF_UP        = 0x1
+	IFF_RUNNING   = 0x40
 	IFF_LOWER_UP  = 0x10000
 	RT_TABLE_MAIN = 254
 	AF_INET       = 2
@@ -264,8 +265,16 @@ type Link struct {
 	Index   uint32
 	Name    string
 	Up      bool
+	Running bool
 	LowerUp bool
 }
+
+// AdminDown reports !IFF_UP: the kernel's NETDEV_DOWN.
+func (l Link) AdminDown() bool { return !l.Up }
+
+// CarrierDown reports an up link without carrier: the kernel's NETDEV_CHANGE
+// case that flushes nexthop objects (!IFF_RUNNING and !IFF_LOWER_UP).
+func (l Link) CarrierDown() bool { return l.Up && !l.Running && !l.LowerUp }
 
 // ParseLink parses an RTM_NEWLINK/RTM_DELLINK payload.
 func ParseLink(b []byte) (Link, error) {
@@ -276,6 +285,7 @@ func ParseLink(b []byte) (Link, error) {
 	l := Link{
 		Index:   binary.LittleEndian.Uint32(b[4:8]),
 		Up:      flags&IFF_UP != 0,
+		Running: flags&IFF_RUNNING != 0,
 		LowerUp: flags&IFF_LOWER_UP != 0,
 	}
 	as, err := attrs(b[16:])

@@ -1,3 +1,5 @@
+//go:build linux
+
 // Command ebpfcheck loads bpf/calib.bpf.c, attaches it to the
 // netif_receive_skb and kfree_skb tracepoints, and reports what it saw.
 //

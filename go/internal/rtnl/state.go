@@ -192,8 +192,15 @@ func (s *State) ApplyNexthop(n Nexthop, del bool) []Change {
 		s.nhs[n.ID] = n
 		return s.diff(before)
 	}
-	gone := map[uint32]bool{n.ID: true}
-	delete(s.nhs, n.ID)
+	s.deleteNexthop(n.ID)
+	return s.diff(before)
+}
+
+// deleteNexthop removes a nexthop object, drops it from every group, removes
+// groups left empty, and removes routes whose nexthop object is gone.
+func (s *State) deleteNexthop(id uint32) {
+	gone := map[uint32]bool{id: true}
+	delete(s.nhs, id)
 	for changed := true; changed; {
 		changed = false
 		for id, g := range s.nhs {
@@ -223,19 +230,55 @@ func (s *State) ApplyNexthop(n Nexthop, del bool) []Change {
 			delete(s.routes, p)
 		}
 	}
-	return s.diff(before)
 }
 
-// ApplyLink records an interface name. Link up/down does not by itself change
-// a FIB entry; the kernel sends route and nexthop messages for that.
-func (s *State) ApplyLink(l Link, del bool) {
+// ApplyLink records an interface name and applies the FIB changes the kernel
+// makes on its own when a link goes down, which it does not announce over
+// netlink (calibrated in results/calibration/recorder.jsonl):
+//
+//   - admin down or carrier loss: every nexthop object on the device is
+//     deleted (nexthop_flush_dev), with the same group and route cascade as
+//     RTM_DELNEXTHOP;
+//   - admin down only: inline next hops on the device die, and a route with
+//     no live inline next hop left is removed (fib_sync_down_dev). On carrier
+//     loss inline next hops stay usable (ignore_routes_with_linkdown=0).
+func (s *State) ApplyLink(l Link, del bool) []Change {
 	if del {
 		delete(s.links, l.Index)
-		return
+		return nil
 	}
 	if l.Name != "" {
 		s.links[l.Index] = l.Name
 	}
+	if !l.AdminDown() && !l.CarrierDown() {
+		return nil
+	}
+	before := s.snapshot(s.Prefixes())
+	for id, nh := range s.nhs {
+		if len(nh.Group) == 0 && nh.Hop.Oif == l.Index && nh.Hop.Kind == "" {
+			s.deleteNexthop(id)
+		}
+	}
+	if l.AdminDown() {
+		for p, r := range s.routes {
+			if r.NhID != 0 || len(r.Inline) == 0 {
+				continue
+			}
+			live := r.Inline[:0:0]
+			for _, h := range r.Inline {
+				if h.Kind != "" || h.Oif != l.Index {
+					live = append(live, h)
+				}
+			}
+			if len(live) == 0 {
+				delete(s.routes, p)
+			} else if len(live) != len(r.Inline) {
+				r.Inline = live
+				s.routes[p] = r
+			}
+		}
+	}
+	return s.diff(before)
 }
 
 // Prefixes returns every prefix in the table, sorted.
