@@ -6,7 +6,7 @@
 // through -ports so a (src, dst) pair covers several ECMP paths. Every sent
 // and received packet is logged as one JSON line; a final stats line says
 // whether the run is valid (the send schedule never slipped more than
-// -tolerance).
+// -tolerance) and gives the lateness distribution.
 //
 // All prober processes in a run get the same -start-at, a CLOCK_MONOTONIC
 // timestamp. Containers share the kernel, so they start together.
@@ -20,6 +20,8 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"runtime"
+	"runtime/debug"
 	"strconv"
 	"strings"
 	"sync"
@@ -37,12 +39,13 @@ type dest struct {
 	ip net.IP
 }
 
+// logger is the shared output. Per-packet lines go through a chunk first.
 type logger struct {
 	mu sync.Mutex
 	w  *bufio.Writer
 }
 
-func (l *logger) line(v any) {
+func (l *logger) json(v any) {
 	b, _ := json.Marshal(v)
 	l.mu.Lock()
 	l.w.Write(b)
@@ -50,24 +53,81 @@ func (l *logger) line(v any) {
 	l.mu.Unlock()
 }
 
-type sendRec struct {
-	K   string `json:"k"`
-	Src uint8  `json:"src"`
-	Dst uint8  `json:"dst"`
-	Sp  uint16 `json:"sp"`
-	Seq uint64 `json:"seq"`
-	T   int64  `json:"t"`
+// chunk is a per-goroutine line buffer, written to the logger in 64 KiB
+// blocks, so the per-packet path takes no lock and does no reflection.
+type chunk struct {
+	l *logger
+	b []byte
 }
 
-type recvRec struct {
-	K   string `json:"k"`
-	Src uint8  `json:"src"`
-	Dst uint8  `json:"dst"`
-	Sp  uint16 `json:"sp"`
-	Seq uint64 `json:"seq"`
-	Ts  int64  `json:"ts"`
-	T   int64  `json:"t"`
-	TTL int    `json:"ttl"`
+func (c *chunk) flush(force bool) {
+	if len(c.b) == 0 || (!force && len(c.b) < 64<<10) {
+		return
+	}
+	c.l.mu.Lock()
+	c.l.w.Write(c.b)
+	c.l.mu.Unlock()
+	c.b = c.b[:0]
+}
+
+func (c *chunk) field(name string, v int64) {
+	c.b = append(c.b, ',', '"')
+	c.b = append(c.b, name...)
+	c.b = append(c.b, '"', ':')
+	c.b = strconv.AppendInt(c.b, v, 10)
+}
+
+func (c *chunk) send(src, dst uint8, sp uint16, seq uint64, t int64) {
+	c.b = append(c.b, `{"k":"s"`...)
+	c.field("src", int64(src))
+	c.field("dst", int64(dst))
+	c.field("sp", int64(sp))
+	c.field("seq", int64(seq))
+	c.field("t", t)
+	c.b = append(c.b, '}', '\n')
+	c.flush(false)
+}
+
+func (c *chunk) recv(p probe.Probe, t int64, ttl int) {
+	c.b = append(c.b, `{"k":"r"`...)
+	c.field("src", int64(p.Src))
+	c.field("dst", int64(p.Dst))
+	c.field("sp", int64(p.Sport))
+	c.field("seq", int64(p.Seq))
+	c.field("ts", p.SentNs)
+	c.field("t", t)
+	c.field("ttl", int64(ttl))
+	c.b = append(c.b, '}', '\n')
+	c.flush(false)
+}
+
+// lateHist counts send lateness in 100 us buckets up to 100 ms; the last
+// bucket holds everything later.
+type lateHist struct{ n [1001]atomic.Uint64 }
+
+func (h *lateHist) add(ns int64) {
+	i := min(max(ns/100_000, 0), 1000)
+	h.n[i].Add(1)
+}
+
+// quantile returns the upper edge in ns of the bucket holding quantile q.
+func (h *lateHist) quantile(q float64) int64 {
+	var total uint64
+	for i := range h.n {
+		total += h.n[i].Load()
+	}
+	if total == 0 {
+		return 0
+	}
+	want := uint64(q * float64(total))
+	var acc uint64
+	for i := range h.n {
+		acc += h.n[i].Load()
+		if acc >= want && acc > 0 {
+			return int64(i+1) * 100_000
+		}
+	}
+	return 1001 * 100_000
 }
 
 type stats struct {
@@ -81,6 +141,9 @@ type stats struct {
 	Recv          uint64 `json:"recv"`
 	RecvBad       uint64 `json:"recv_bad"`
 	MaxLateNs     int64  `json:"max_late_ns"`
+	P50LateNs     int64  `json:"p50_late_ns_bucket"`
+	P99LateNs     int64  `json:"p99_late_ns_bucket"`
+	P999LateNs    int64  `json:"p999_late_ns_bucket"`
 	LateOverTol   uint64 `json:"late_over_tolerance"`
 	ToleranceNs   int64  `json:"tolerance_ns"`
 	Valid         bool   `json:"valid"`
@@ -99,6 +162,8 @@ func main() {
 	out := flag.String("out", "-", "output JSONL path (- = stdout)")
 	flag.Parse()
 
+	// Fewer GC cycles on the per-packet path.
+	debug.SetGCPercent(400)
 	if *id == 0 || *id > 255 || *rate <= 0 {
 		fail(errors.New("need -id in 1..255 and -rate > 0"))
 	}
@@ -143,7 +208,11 @@ func main() {
 	end := *startAt + dur.Nanoseconds()
 
 	var recv, recvBad atomic.Uint64
+	recvDone := make(chan struct{})
 	go func() {
+		defer close(recvDone)
+		ck := &chunk{l: lg}
+		defer ck.flush(true)
 		buf := make([]byte, 2048)
 		for {
 			n, cm, _, err := pc.ReadFrom(buf)
@@ -161,18 +230,21 @@ func main() {
 				ttl = cm.TTL
 			}
 			recv.Add(1)
-			lg.line(recvRec{"r", p.Src, p.Dst, p.Sport, p.Seq, p.SentNs, t, ttl})
+			ck.recv(p, t, ttl)
 		}
 	}()
 
 	var sent, sendErr, lateOver atomic.Uint64
 	var maxLate atomic.Int64
+	var hist lateHist
 	var wg sync.WaitGroup
 	interval := int64(time.Second) / int64(*rate)
 	for _, d := range ds {
 		wg.Add(1)
 		go func(d dest) {
 			defer wg.Done()
+			ck := &chunk{l: lg}
+			defer ck.flush(true)
 			sch := probe.Schedule{StartNs: *startAt, IntervalNs: interval, Ports: ps}
 			addr := &net.UDPAddr{IP: d.ip, Port: int(probe.Port)}
 			buf := make([]byte, probe.Size)
@@ -181,11 +253,17 @@ func main() {
 				if due >= end {
 					return
 				}
-				if wait := due - mono.Now(); wait > 0 {
-					time.Sleep(time.Duration(wait))
+				// Sleep for most of the wait, then yield-spin: time.Sleep
+				// alone overshoots by tens of microseconds or more.
+				if wait := due - mono.Now(); wait > 200_000 {
+					time.Sleep(time.Duration(wait - 150_000))
+				}
+				for mono.Now() < due {
+					runtime.Gosched()
 				}
 				now := mono.Now()
 				late := now - due
+				hist.add(late)
 				for {
 					m := maxLate.Load()
 					if late <= m || maxLate.CompareAndSwap(m, late) {
@@ -201,7 +279,7 @@ func main() {
 					sendErr.Add(1)
 				}
 				sent.Add(1)
-				lg.line(sendRec{"s", uint8(*id), d.id, sp, seq, now})
+				ck.send(uint8(*id), d.id, sp, seq, now)
 			}
 		}(d)
 	}
@@ -210,14 +288,16 @@ func main() {
 		time.Sleep(time.Duration(wait))
 	}
 	rc.Close()
+	<-recvDone
 
 	st.Sent, st.SendErrors, st.Recv, st.RecvBad = sent.Load(), sendErr.Load(), recv.Load(), recvBad.Load()
 	st.MaxLateNs, st.LateOverTol = maxLate.Load(), lateOver.Load()
+	st.P50LateNs, st.P99LateNs, st.P999LateNs = hist.quantile(0.5), hist.quantile(0.99), hist.quantile(0.999)
 	st.Valid = st.LateOverTol == 0
 	if !st.Valid {
 		st.InvalidReason = fmt.Sprintf("%d sends later than %s (max %s)", st.LateOverTol, *tol, time.Duration(st.MaxLateNs))
 	}
-	lg.line(st)
+	lg.json(st)
 	if err := lg.w.Flush(); err != nil {
 		fail(err)
 	}
