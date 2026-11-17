@@ -225,13 +225,18 @@ def start_tracer(lab: Lab, out: Path, timeout_s: float = 20) -> Tracer:
 
 
 def stop_tracer(t: Tracer) -> dict:
-    t.proc.send_signal(signal.SIGTERM)
+    t.proc.send_signal(signal.SIGTERM)  # sudo relays it
     try:
         t.proc.wait(timeout=15)
     except subprocess.TimeoutExpired:
-        t.proc.kill()
+        # Killing sudo does not kill its child; find the tracer by its output path.
+        run([*sudo_prefix(), "pkill", "-KILL", "-f", f"-out {t.out}"], check=False)
+        t.proc.wait(timeout=5)
     last = t.out.read_text().strip().splitlines()[-1:] if t.out.exists() else []
-    rec = json.loads(last[0]) if last else {}
+    try:
+        rec = json.loads(last[0]) if last else {}
+    except json.JSONDecodeError:
+        rec = {}
     if rec.get("kind") != "stats":
         rec = {"kind": "stats", "valid": False, "invalid_reason": "tracer wrote no stats record"}
     return rec

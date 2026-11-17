@@ -20,6 +20,7 @@ import (
 	"os/signal"
 	"strconv"
 	"strings"
+	"sync/atomic"
 	"syscall"
 	"time"
 
@@ -157,17 +158,24 @@ func main() {
 
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
-	go func() {
-		<-sig
-		// Let events already in the ring buffer drain, then stop.
-		rd.SetDeadline(time.Now().Add(300 * time.Millisecond))
-	}()
+	var stopping atomic.Bool
+	go func() { <-sig; stopping.Store(true) }()
 
 	var n, bad, unknownNs uint64
 	var line []byte
 	for {
+		// A deadline set while Read is blocked does not wake it, so read
+		// with a short rolling deadline. After a stop signal, the first
+		// empty 200 ms means the ring buffer has drained.
+		rd.SetDeadline(time.Now().Add(200 * time.Millisecond))
 		rec, err := rd.Read()
-		if errors.Is(err, os.ErrDeadlineExceeded) || errors.Is(err, ringbuf.ErrClosed) {
+		if errors.Is(err, os.ErrDeadlineExceeded) {
+			if stopping.Load() {
+				break
+			}
+			continue
+		}
+		if errors.Is(err, ringbuf.ErrClosed) {
 			break
 		}
 		if err != nil {
