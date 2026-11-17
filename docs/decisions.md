@@ -50,3 +50,10 @@ Each ADR: context, decision, alternatives, consequence.
 - **Decision:** Hosts get `10.0.0.0/8 via <gateway>` instead of replacing the default route, so the management path keeps working and all lab traffic uses the fabric. Router sysctls (`ip_forward`, `fib_multipath_hash_policy=1`, `rp_filter=0`, IPv6 off) are set through containerlab's `sysctls` so they apply before FRR starts. Interface addresses are configured by FRR (`zebra`), so the generated `frr.conf` is the single source of addressing.
 - **Alternatives:** `exec` sysctls after start (race with FRR); addresses via `ip addr` in `exec` (two sources of truth for drift checks).
 - **Consequence:** `labctl diff` compares one config per router.
+
+## ADR-008: Generated configs use FRR's canonical running-config form
+
+- **Context:** `labctl diff` compares running and generated configs (SPEC 4.4). FRR rewrites its input: it reorders blocks (prefix-lists and route-maps first, interfaces sorted, `lo` after `eth*`), reorders lines inside blocks, turns `passive-interface X` into `ip ospf passive` under the interface, and hides defaults (`isis metric 10`, `maximum-paths 64`, `metric-style wide`, `bgp log-neighbor-changes` under `frr defaults datacenter`). It also shows `use-underlays-nexthop-weight`, which FRR 10.7 adds on its own.
+- **Decision:** the templates emit exactly FRR 10.7.1's canonical form. Normalisation in `labctl/drift.py` only strips FRR's banner, version line, `!` separators and `end`. A clean deploy diffing empty is a tested property (`tests/test_drift.py`, running configs captured from clean deploys of every mode).
+- **Alternatives:** a semantic normaliser that parses both configs into (block, line) sets with a table of FRR rewrites. More code, and every new FRR rewrite is silently "normalised away" instead of showing up as a failing test.
+- **Consequence:** a new FRR version may change the canonical form; the drift fixtures will then fail and must be recaptured with the new image. Relying on FRR's default `maximum-paths` (64) is covered by `verify`'s ECMP-width check.

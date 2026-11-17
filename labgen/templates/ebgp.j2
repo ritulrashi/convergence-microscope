@@ -10,6 +10,7 @@ router bgp {{ r.asn }}
  neighbor {{ i.peer_address }} remote-as {{ asns[i.peer] }}
  neighbor {{ i.peer_address }} description {{ i.peer }}
 {% if plan.bfd %}
+ neighbor {{ i.peer_address }} bfd
  neighbor {{ i.peer_address }} bfd profile fast
 {% endif %}
  neighbor {{ i.peer_address }} timers connect {{ r.timers.bgp_connect_retry_s }}
