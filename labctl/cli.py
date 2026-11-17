@@ -102,5 +102,53 @@ def snapshot(
     typer.echo(str(write_snapshot(labmod.load(intent, mode, bfd), out)))
 
 
+@app.command("run")
+def run_cmd(
+    intent: Path = IntentArg,
+    mode: Mode | None = ModeOpt,
+    bfd: bool | None = BfdOpt,
+    event: str = typer.Option(..., help="carrier_down, silent_down, link_up or node_down"),
+    seed: int = typer.Option(0, help="seeds the location choice"),
+    location: str | None = typer.Option(None, help="'a-b' (link, acted on at a) or a router"),
+    rate: int = typer.Option(1000, help="probe pps per host pair"),
+    duration: float = typer.Option(8.0, help="probing seconds"),
+    event_at: float = typer.Option(2.0, help="seconds after probing starts"),
+    out: Path = typer.Option(Path("results/runs"), help="output root"),
+    keep_raw: bool = typer.Option(False, help="keep probes and hops (gzipped)"),
+) -> None:
+    """One seeded fault-injection run, replayed and reported."""
+    from labctl.runner import do_run
+
+    rep = do_run(
+        labmod.load(intent, mode, bfd),
+        event,
+        seed,
+        out,
+        location,
+        rate,
+        duration,
+        event_at,
+        keep_raw=keep_raw,
+    )
+    typer.echo(
+        json.dumps(
+            {
+                k: rep[k]
+                for k in ("run_id", "valid", "lost", "lost_by_cause", "microloops_in_fib", "replay")
+            },
+            indent=2,
+        )
+    )
+
+
+@app.command()
+def report(run_dir: Path) -> None:
+    """(Re)write report.json and timeline.html for a replayed run."""
+    from labctl.report import write_report
+
+    rep = write_report(run_dir)
+    typer.echo(json.dumps(rep["lost_by_cause"]))
+
+
 if __name__ == "__main__":
     app()

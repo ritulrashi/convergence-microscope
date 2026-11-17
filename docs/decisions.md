@@ -91,3 +91,30 @@ Each ADR: context, decision, alternatives, consequence.
 - **Decision:** each router runs `ip route del default` at start (containerlab `exec`), and `verify` fails if any router's RIB has a default route.
 - **Alternatives:** a separate VRF for management (more config, and FRR would need VRF awareness); leave it and filter in analysis (the packets would really leave the fabric).
 - **Consequence:** the management network still reaches routers through its connected /24, which is all `docker exec` and containerlab need.
+
+## ADR-014: node_down freezes FRR with SIGSTOP
+
+- **Context:** SPEC 6 defines `node_down` as stopping routing on a router while its interfaces stay up. The FRR image runs `watchfrr` as the container's main process: it restarts killed daemons, and stopping it ends the container (and its interfaces).
+- **Decision:** `node_down` sends SIGSTOP from the host to every FRR process in the container (watchfrr, zebra, mgmtd, staticd, bgpd/ospfd/isisd, bfdd); undo sends SIGCONT.
+- **Alternatives:** `frrinit.sh stop` (kills the container); SIGKILL the daemons (watchfrr restarts them mid-run, and zebra's restart rewrites the FIB); stop the container (interfaces vanish, which is `carrier_down` on every link).
+- **Consequence:** this models a hung control plane: hellos, keepalives and BFD stop, the kernel keeps forwarding with the last FIB, and neighbors detect the failure through BFD or protocol hold timers. A graceful shutdown (neighbors told explicitly) is not modeled.
+
+## ADR-015: What raw data each run keeps
+
+- **Context:** a run probes 12 host pairs at 1,000 pps for 8 s: about 200,000 probe records and up to 400,000 tracer records. E3 alone is up to 960 runs, far too much to commit.
+- **Decision:** every run keeps `run.json`, `plan.json`, the full `fib_events.jsonl.gz`, and replay's per-probe output for every probe that was lost or predicted lost (`replay/predictions.jsonl`), mismatches, FIB loops and summary, plus `report.json` and `timeline.html`. Probe and tracer logs of delivered probes are summarized by replay and then deleted, except in evidence runs (`--keep-raw`), which keep them gzipped.
+- **Alternatives:** keep everything (tens of GB); keep only summaries (loses the per-packet evidence for lost packets).
+- **Consequence:** every number in FINDINGS can be recomputed from committed files, and per-packet evidence exists for every lost packet.
+
+## ADR-016: Recorder lag is bounded with kprobes on rtnl_notify and fib_table_insert/delete
+
+- **Context:** SPEC 5.3 asks to bound the recorder's receipt lag, with a kprobe cross-check on `fib_table_insert`/`fib_table_delete`.
+- **Decision:** `bpf/lag.bpf.c` probes all three: `rtnl_notify` (the kernel sending the netlink message) and the two FIB functions. E0 reports the recorder's receipt time minus each.
+- **Consequence:** the `rtnl_notify` figure isolates the netlink delivery plus user-space scheduling delay; the FIB-function figure adds the kernel's own work between changing the table and notifying. Both are cross-checks: kprobes on internal functions can disappear between kernel versions, and `lagprobe` reports which ones attached.
+
+## ADR-017: Drops are classified by reason code and kernel function
+
+- **Context:** tracer calibration showed that blackhole and unreachable routes both drop with `SKB_DROP_REASON_NOT_SPECIFIED` (code 2), a code many unrelated paths also use. The reason code alone cannot separate a blackhole from other drops.
+- **Decision:** the tracer resolves the `kfree_skb` call site to a function name through `/proc/kallsyms`, and calibration writes classes as `code@function` pairs (`results/calibration/drop_reasons.json`). On kernel 6.8: blackhole = `2@ip_error`, `70@ip_error` (`IP_INNOROUTES`); TTL expiry = `11@ip_forward` (`IP_INHDR`).
+- **Alternatives:** raw addresses (change every boot with KASLR); reason codes only (misclassifies).
+- **Consequence:** any other (code, function) pair is reported as `other:<reason>`, never guessed.
