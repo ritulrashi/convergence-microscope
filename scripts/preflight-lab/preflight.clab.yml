@@ -1,0 +1,19 @@
+# Two FRR routers on one link. Used only by scripts/preflight.sh.
+name: cm-preflight
+topology:
+  defaults:
+    kind: linux
+    image: ${FRR_IMAGE}
+    binds:
+      - daemons:/etc/frr/daemons
+      - vtysh.conf:/etc/frr/vtysh.conf
+      - frr.conf:/etc/frr/frr.conf
+  nodes:
+    r1:
+      exec:
+        - ip addr add 10.1.0.0/31 dev eth1
+    r2:
+      exec:
+        - ip addr add 10.1.0.1/31 dev eth1
+  links:
+    - endpoints: ["r1:eth1", "r2:eth1"]

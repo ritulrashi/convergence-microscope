@@ -1,0 +1,26 @@
+{
+  "name": "convergence-microscope",
+  // containerlab Docker-in-Docker image (Debian bookworm, Python 3.11, dockerd, containerlab).
+  // Pinned: the containerlab version inside the image equals the tag.
+  "image": "ghcr.io/srl-labs/containerlab/devcontainer-dind:0.83.0",
+  "features": {
+    "ghcr.io/devcontainers/features/go:1": {
+      "version": "1.26"
+    },
+    "ghcr.io/devcontainers/features/sshd:1": {
+      "version": "latest"
+    }
+  },
+  // eBPF programs must load and attach from inside this container.
+  "privileged": true,
+  "mounts": [
+    "source=/sys/kernel/debug,target=/sys/kernel/debug,type=bind",
+    "source=/lib/modules,target=/lib/modules,type=bind,readonly"
+  ],
+  "remoteUser": "vscode",
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "hostRequirements": {
+    "cpus": 2,
+    "memory": "8gb"
+  }
+}
