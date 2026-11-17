@@ -51,6 +51,18 @@ else
   check ebpf_build false "make ebpfcheck failed; see $OUT_DIR/build.log: $(tail -3 "$OUT_DIR/build.log" | tr '\n' ' ')"
 fi
 
+# Tracepoint attach needs tracefs. Codespaces do not mount it inside the
+# devcontainer, so mount it if missing and record that we did.
+if ! mountpoint -q /sys/kernel/tracing && ! mountpoint -q /sys/kernel/debug/tracing; then
+  if sudo mount -t tracefs nodev /sys/kernel/tracing 2>"$OUT_DIR/tracefs.err"; then
+    check tracefs_mounted true "was not mounted; mounted tracefs at /sys/kernel/tracing"
+  else
+    check tracefs_mounted false "mount -t tracefs failed: $(cat "$OUT_DIR/tracefs.err")"
+  fi
+else
+  check tracefs_mounted true "already mounted"
+fi
+
 # 4. Attach from inside the devcontainer, no netns filter.
 if [ -x "$EBPFCHECK" ] && sudo "$EBPFCHECK" -duration 3s -out "$OUT_DIR/ebpf_attach.json" >/dev/null 2>"$OUT_DIR/ebpf_attach.err"; then
   ev="$(python3 -c "import json;r=json.load(open('$OUT_DIR/ebpf_attach.json'));print('attached', r['attached'], 'netns seen', len({c['netns'] for c in r['counts'] or []}), 'events', sum(c['count'] for c in r['counts'] or []))")"
