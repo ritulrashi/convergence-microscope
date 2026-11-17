@@ -1,0 +1,15 @@
+router ospf
+ ospf router-id {{ r.router_id }}
+ log-adjacency-changes detail
+ timers throttle spf {{ r.timers.spf_delay_ms }} {{ r.timers.spf_hold_ms }} {{ r.timers.spf_max_hold_ms }}
+ maximum-paths 64
+ passive-interface lo
+{% for i in r.ifaces if i.kind == "host" %}
+ passive-interface {{ i.name }}
+{% endfor %}
+ network {{ r.loopback }} area 0
+{% for i in r.ifaces %}
+ network {{ i.address | network }} area 0
+{% endfor %}
+exit
+!

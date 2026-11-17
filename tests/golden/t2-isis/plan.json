@@ -1,0 +1,468 @@
+{
+  "bfd": false,
+  "hosts": [
+    {
+      "address": "10.10.1.10/24",
+      "gateway": "10.10.1.1",
+      "iface": "eth1",
+      "name": "h1",
+      "router": "r1",
+      "site": 1
+    },
+    {
+      "address": "10.10.3.10/24",
+      "gateway": "10.10.3.1",
+      "iface": "eth1",
+      "name": "h3",
+      "router": "r3",
+      "site": 3
+    },
+    {
+      "address": "10.10.4.10/24",
+      "gateway": "10.10.4.1",
+      "iface": "eth1",
+      "name": "h4",
+      "router": "r4",
+      "site": 4
+    }
+  ],
+  "links": [
+    {
+      "a": "r1",
+      "a_iface": "eth1",
+      "b": "r2",
+      "b_iface": "eth1",
+      "cost": 10,
+      "subnet": "10.1.0.0/31"
+    },
+    {
+      "a": "r2",
+      "a_iface": "eth2",
+      "b": "r3",
+      "b_iface": "eth1",
+      "cost": 10,
+      "subnet": "10.1.0.2/31"
+    },
+    {
+      "a": "r3",
+      "a_iface": "eth2",
+      "b": "r4",
+      "b_iface": "eth1",
+      "cost": 10,
+      "subnet": "10.1.0.4/31"
+    },
+    {
+      "a": "r4",
+      "a_iface": "eth2",
+      "b": "r5",
+      "b_iface": "eth1",
+      "cost": 10,
+      "subnet": "10.1.0.6/31"
+    },
+    {
+      "a": "r5",
+      "a_iface": "eth2",
+      "b": "r6",
+      "b_iface": "eth1",
+      "cost": 10,
+      "subnet": "10.1.0.8/31"
+    },
+    {
+      "a": "r6",
+      "a_iface": "eth2",
+      "b": "r1",
+      "b_iface": "eth2",
+      "cost": 10,
+      "subnet": "10.1.0.10/31"
+    },
+    {
+      "a": "r1",
+      "a_iface": "eth3",
+      "b": "r4",
+      "b_iface": "eth3",
+      "cost": 25,
+      "subnet": "10.1.0.12/31"
+    },
+    {
+      "a": "r2",
+      "a_iface": "eth3",
+      "b": "r5",
+      "b_iface": "eth3",
+      "cost": 30,
+      "subnet": "10.1.0.14/31"
+    },
+    {
+      "a": "r1",
+      "a_iface": "eth4",
+      "b": "h1",
+      "b_iface": "eth1",
+      "cost": 10,
+      "subnet": "10.10.1.0/24"
+    },
+    {
+      "a": "r3",
+      "a_iface": "eth3",
+      "b": "h3",
+      "b_iface": "eth1",
+      "cost": 10,
+      "subnet": "10.10.3.0/24"
+    },
+    {
+      "a": "r4",
+      "a_iface": "eth4",
+      "b": "h4",
+      "b_iface": "eth1",
+      "cost": 10,
+      "subnet": "10.10.4.0/24"
+    }
+  ],
+  "mode": "isis",
+  "name": "t2",
+  "routers": [
+    {
+      "asn": 65001,
+      "host_subnets": [
+        "10.10.1.0/24"
+      ],
+      "ifaces": [
+        {
+          "address": "10.1.0.0/31",
+          "cost": 10,
+          "kind": "fabric",
+          "name": "eth1",
+          "peer": "r2",
+          "peer_address": "10.1.0.1"
+        },
+        {
+          "address": "10.1.0.11/31",
+          "cost": 10,
+          "kind": "fabric",
+          "name": "eth2",
+          "peer": "r6",
+          "peer_address": "10.1.0.10"
+        },
+        {
+          "address": "10.1.0.12/31",
+          "cost": 25,
+          "kind": "fabric",
+          "name": "eth3",
+          "peer": "r4",
+          "peer_address": "10.1.0.13"
+        },
+        {
+          "address": "10.10.1.1/24",
+          "cost": 10,
+          "kind": "host",
+          "name": "eth4",
+          "peer": "h1",
+          "peer_address": "10.10.1.10"
+        }
+      ],
+      "isis_net": "49.0001.0100.0000.0001.00",
+      "loopback": "10.0.0.1/32",
+      "name": "r1",
+      "role": "router",
+      "router_id": "10.0.0.1",
+      "timers": {
+        "bfd_multiplier": 3,
+        "bfd_rx_ms": 100,
+        "bfd_tx_ms": 100,
+        "bgp_connect_retry_s": 2,
+        "bgp_hold_s": 3,
+        "bgp_keepalive_s": 1,
+        "isis_hello_multiplier": 3,
+        "isis_hello_s": 1,
+        "isis_spf_holddown_ms": 10000,
+        "isis_spf_init_ms": 50,
+        "isis_spf_long_ms": 5000,
+        "isis_spf_short_ms": 200,
+        "isis_spf_time_to_learn_ms": 500,
+        "ospf_dead_s": 3,
+        "ospf_hello_s": 1,
+        "spf_delay_ms": 50,
+        "spf_hold_ms": 200,
+        "spf_max_hold_ms": 5000
+      }
+    },
+    {
+      "asn": 65002,
+      "host_subnets": [],
+      "ifaces": [
+        {
+          "address": "10.1.0.1/31",
+          "cost": 10,
+          "kind": "fabric",
+          "name": "eth1",
+          "peer": "r1",
+          "peer_address": "10.1.0.0"
+        },
+        {
+          "address": "10.1.0.2/31",
+          "cost": 10,
+          "kind": "fabric",
+          "name": "eth2",
+          "peer": "r3",
+          "peer_address": "10.1.0.3"
+        },
+        {
+          "address": "10.1.0.14/31",
+          "cost": 30,
+          "kind": "fabric",
+          "name": "eth3",
+          "peer": "r5",
+          "peer_address": "10.1.0.15"
+        }
+      ],
+      "isis_net": "49.0001.0100.0000.0002.00",
+      "loopback": "10.0.0.2/32",
+      "name": "r2",
+      "role": "router",
+      "router_id": "10.0.0.2",
+      "timers": {
+        "bfd_multiplier": 3,
+        "bfd_rx_ms": 100,
+        "bfd_tx_ms": 100,
+        "bgp_connect_retry_s": 2,
+        "bgp_hold_s": 3,
+        "bgp_keepalive_s": 1,
+        "isis_hello_multiplier": 3,
+        "isis_hello_s": 1,
+        "isis_spf_holddown_ms": 10000,
+        "isis_spf_init_ms": 50,
+        "isis_spf_long_ms": 5000,
+        "isis_spf_short_ms": 200,
+        "isis_spf_time_to_learn_ms": 500,
+        "ospf_dead_s": 3,
+        "ospf_hello_s": 1,
+        "spf_delay_ms": 50,
+        "spf_hold_ms": 200,
+        "spf_max_hold_ms": 5000
+      }
+    },
+    {
+      "asn": 65003,
+      "host_subnets": [
+        "10.10.3.0/24"
+      ],
+      "ifaces": [
+        {
+          "address": "10.1.0.3/31",
+          "cost": 10,
+          "kind": "fabric",
+          "name": "eth1",
+          "peer": "r2",
+          "peer_address": "10.1.0.2"
+        },
+        {
+          "address": "10.1.0.4/31",
+          "cost": 10,
+          "kind": "fabric",
+          "name": "eth2",
+          "peer": "r4",
+          "peer_address": "10.1.0.5"
+        },
+        {
+          "address": "10.10.3.1/24",
+          "cost": 10,
+          "kind": "host",
+          "name": "eth3",
+          "peer": "h3",
+          "peer_address": "10.10.3.10"
+        }
+      ],
+      "isis_net": "49.0001.0100.0000.0003.00",
+      "loopback": "10.0.0.3/32",
+      "name": "r3",
+      "role": "router",
+      "router_id": "10.0.0.3",
+      "timers": {
+        "bfd_multiplier": 3,
+        "bfd_rx_ms": 100,
+        "bfd_tx_ms": 100,
+        "bgp_connect_retry_s": 2,
+        "bgp_hold_s": 3,
+        "bgp_keepalive_s": 1,
+        "isis_hello_multiplier": 3,
+        "isis_hello_s": 1,
+        "isis_spf_holddown_ms": 10000,
+        "isis_spf_init_ms": 50,
+        "isis_spf_long_ms": 5000,
+        "isis_spf_short_ms": 200,
+        "isis_spf_time_to_learn_ms": 500,
+        "ospf_dead_s": 3,
+        "ospf_hello_s": 1,
+        "spf_delay_ms": 50,
+        "spf_hold_ms": 200,
+        "spf_max_hold_ms": 5000
+      }
+    },
+    {
+      "asn": 65004,
+      "host_subnets": [
+        "10.10.4.0/24"
+      ],
+      "ifaces": [
+        {
+          "address": "10.1.0.5/31",
+          "cost": 10,
+          "kind": "fabric",
+          "name": "eth1",
+          "peer": "r3",
+          "peer_address": "10.1.0.4"
+        },
+        {
+          "address": "10.1.0.6/31",
+          "cost": 10,
+          "kind": "fabric",
+          "name": "eth2",
+          "peer": "r5",
+          "peer_address": "10.1.0.7"
+        },
+        {
+          "address": "10.1.0.13/31",
+          "cost": 25,
+          "kind": "fabric",
+          "name": "eth3",
+          "peer": "r1",
+          "peer_address": "10.1.0.12"
+        },
+        {
+          "address": "10.10.4.1/24",
+          "cost": 10,
+          "kind": "host",
+          "name": "eth4",
+          "peer": "h4",
+          "peer_address": "10.10.4.10"
+        }
+      ],
+      "isis_net": "49.0001.0100.0000.0004.00",
+      "loopback": "10.0.0.4/32",
+      "name": "r4",
+      "role": "router",
+      "router_id": "10.0.0.4",
+      "timers": {
+        "bfd_multiplier": 3,
+        "bfd_rx_ms": 100,
+        "bfd_tx_ms": 100,
+        "bgp_connect_retry_s": 2,
+        "bgp_hold_s": 3,
+        "bgp_keepalive_s": 1,
+        "isis_hello_multiplier": 3,
+        "isis_hello_s": 1,
+        "isis_spf_holddown_ms": 10000,
+        "isis_spf_init_ms": 50,
+        "isis_spf_long_ms": 5000,
+        "isis_spf_short_ms": 200,
+        "isis_spf_time_to_learn_ms": 500,
+        "ospf_dead_s": 3,
+        "ospf_hello_s": 1,
+        "spf_delay_ms": 50,
+        "spf_hold_ms": 200,
+        "spf_max_hold_ms": 5000
+      }
+    },
+    {
+      "asn": 65005,
+      "host_subnets": [],
+      "ifaces": [
+        {
+          "address": "10.1.0.7/31",
+          "cost": 10,
+          "kind": "fabric",
+          "name": "eth1",
+          "peer": "r4",
+          "peer_address": "10.1.0.6"
+        },
+        {
+          "address": "10.1.0.8/31",
+          "cost": 10,
+          "kind": "fabric",
+          "name": "eth2",
+          "peer": "r6",
+          "peer_address": "10.1.0.9"
+        },
+        {
+          "address": "10.1.0.15/31",
+          "cost": 30,
+          "kind": "fabric",
+          "name": "eth3",
+          "peer": "r2",
+          "peer_address": "10.1.0.14"
+        }
+      ],
+      "isis_net": "49.0001.0100.0000.0005.00",
+      "loopback": "10.0.0.5/32",
+      "name": "r5",
+      "role": "router",
+      "router_id": "10.0.0.5",
+      "timers": {
+        "bfd_multiplier": 3,
+        "bfd_rx_ms": 100,
+        "bfd_tx_ms": 100,
+        "bgp_connect_retry_s": 2,
+        "bgp_hold_s": 3,
+        "bgp_keepalive_s": 1,
+        "isis_hello_multiplier": 3,
+        "isis_hello_s": 1,
+        "isis_spf_holddown_ms": 10000,
+        "isis_spf_init_ms": 50,
+        "isis_spf_long_ms": 5000,
+        "isis_spf_short_ms": 200,
+        "isis_spf_time_to_learn_ms": 500,
+        "ospf_dead_s": 3,
+        "ospf_hello_s": 1,
+        "spf_delay_ms": 50,
+        "spf_hold_ms": 200,
+        "spf_max_hold_ms": 5000
+      }
+    },
+    {
+      "asn": 65006,
+      "host_subnets": [],
+      "ifaces": [
+        {
+          "address": "10.1.0.9/31",
+          "cost": 10,
+          "kind": "fabric",
+          "name": "eth1",
+          "peer": "r5",
+          "peer_address": "10.1.0.8"
+        },
+        {
+          "address": "10.1.0.10/31",
+          "cost": 10,
+          "kind": "fabric",
+          "name": "eth2",
+          "peer": "r1",
+          "peer_address": "10.1.0.11"
+        }
+      ],
+      "isis_net": "49.0001.0100.0000.0006.00",
+      "loopback": "10.0.0.6/32",
+      "name": "r6",
+      "role": "router",
+      "router_id": "10.0.0.6",
+      "timers": {
+        "bfd_multiplier": 3,
+        "bfd_rx_ms": 100,
+        "bfd_tx_ms": 100,
+        "bgp_connect_retry_s": 2,
+        "bgp_hold_s": 3,
+        "bgp_keepalive_s": 1,
+        "isis_hello_multiplier": 3,
+        "isis_hello_s": 1,
+        "isis_spf_holddown_ms": 10000,
+        "isis_spf_init_ms": 50,
+        "isis_spf_long_ms": 5000,
+        "isis_spf_short_ms": 200,
+        "isis_spf_time_to_learn_ms": 500,
+        "ospf_dead_s": 3,
+        "ospf_hello_s": 1,
+        "spf_delay_ms": 50,
+        "spf_hold_ms": 200,
+        "spf_max_hold_ms": 5000
+      }
+    }
+  ],
+  "topology": "mesh"
+}

@@ -1,0 +1,8 @@
+router isis core
+ net {{ r.isis_net }}
+ is-type level-2-only
+ metric-style wide
+ log-adjacency-changes
+ spf-delay-ietf init-delay {{ r.timers.isis_spf_init_ms }} short-delay {{ r.timers.isis_spf_short_ms }} long-delay {{ r.timers.isis_spf_long_ms }} holddown {{ r.timers.isis_spf_holddown_ms }} time-to-learn {{ r.timers.isis_spf_time_to_learn_ms }}
+exit
+!

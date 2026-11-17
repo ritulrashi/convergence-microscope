@@ -1,0 +1,34 @@
+# T1: RFC 7938 style leaf-spine. 2 spines, 4 leaves, one host per leaf.
+name: t1
+topology: leafspine
+routing:
+  mode: ebgp
+  bfd: false
+  asn:
+    spine: 65000
+    base: 65101
+pools:
+  loopback: 10.0.0.0/24
+  link: 10.1.0.0/16
+  host: 10.10.0.0/16
+nodes:
+  - {name: spine1, role: spine}
+  - {name: spine2, role: spine}
+  - {name: leaf1, role: leaf}
+  - {name: leaf2, role: leaf}
+  - {name: leaf3, role: leaf}
+  - {name: leaf4, role: leaf}
+hosts:
+  - {name: h1, attach: leaf1, site: 1}
+  - {name: h2, attach: leaf2, site: 2}
+  - {name: h3, attach: leaf3, site: 3}
+  - {name: h4, attach: leaf4, site: 4}
+links:
+  - {a: leaf1, b: spine1}
+  - {a: leaf1, b: spine2}
+  - {a: leaf2, b: spine1}
+  - {a: leaf2, b: spine2}
+  - {a: leaf3, b: spine1}
+  - {a: leaf3, b: spine2}
+  - {a: leaf4, b: spine1}
+  - {a: leaf4, b: spine2}

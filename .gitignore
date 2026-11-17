@@ -9,3 +9,4 @@ clab-*/
 .clab-*
 /build/
 *.tmp
+generated/

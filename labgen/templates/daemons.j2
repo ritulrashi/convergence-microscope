@@ -1,0 +1,15 @@
+zebra=yes
+mgmtd=yes
+staticd=yes
+bgpd={{ "yes" if plan.mode == "ebgp" else "no" }}
+ospfd={{ "yes" if plan.mode == "ospf" else "no" }}
+isisd={{ "yes" if plan.mode == "isis" else "no" }}
+bfdd={{ "yes" if plan.bfd else "no" }}
+vtysh_enable=yes
+zebra_options="  -A 127.0.0.1 -s 90000000"
+mgmtd_options="  -A 127.0.0.1"
+staticd_options="-A 127.0.0.1"
+bgpd_options="   -A 127.0.0.1"
+ospfd_options="  -A 127.0.0.1"
+isisd_options="  -A 127.0.0.1"
+bfdd_options="   -A 127.0.0.1"

@@ -1,0 +1,47 @@
+{# RFC 7938 style eBGP. Leaves export only their own prefixes so they never
+   carry transit traffic; spines and mesh routers export everything. #}
+ip prefix-list LOCAL seq 5 permit {{ r.loopback }}
+{% for s in r.host_subnets %}
+ip prefix-list LOCAL seq {{ 10 + loop.index0 * 5 }} permit {{ s }}
+{% endfor %}
+!
+route-map IMPORT permit 10
+exit
+!
+{% if r.role == "leaf" %}
+route-map EXPORT permit 10
+ match ip address prefix-list LOCAL
+exit
+{% else %}
+route-map EXPORT permit 10
+exit
+{% endif %}
+!
+router bgp {{ r.asn }}
+ bgp router-id {{ r.router_id }}
+ bgp log-neighbor-changes
+ bgp bestpath as-path multipath-relax
+ no bgp network import-check
+ timers bgp {{ r.timers.bgp_keepalive_s }} {{ r.timers.bgp_hold_s }}
+{% for i in r.ifaces if i.kind == "fabric" %}
+ neighbor {{ i.peer_address }} remote-as {{ asns[i.peer] }}
+ neighbor {{ i.peer_address }} description {{ i.peer }}
+ neighbor {{ i.peer_address }} timers connect {{ r.timers.bgp_connect_retry_s }}
+{% if plan.bfd %}
+ neighbor {{ i.peer_address }} bfd profile fast
+{% endif %}
+{% endfor %}
+ !
+ address-family ipv4 unicast
+  network {{ r.loopback }}
+{% for s in r.host_subnets %}
+  network {{ s }}
+{% endfor %}
+{% for i in r.ifaces if i.kind == "fabric" %}
+  neighbor {{ i.peer_address }} route-map IMPORT in
+  neighbor {{ i.peer_address }} route-map EXPORT out
+{% endfor %}
+  maximum-paths 64
+ exit-address-family
+exit
+!

@@ -1,0 +1,36 @@
+# T2: backbone-style mesh. Six routers in a ring (r1..r6) with chords r1-r4 and
+# r2-r5, uneven costs. Example microloop: when r3-r4 fails, r3's new path to
+# r4 goes via r2 (r3-r2-r1-r4, cost 45) while r2's old path went via r3
+# (r2-r3-r4, cost 20). If r3 converges before r2, packets for r4 bounce
+# between r2 and r3 until r2 converges.
+name: t2
+topology: mesh
+routing:
+  mode: ospf
+  bfd: false
+  asn:
+    base: 65001
+pools:
+  loopback: 10.0.0.0/24
+  link: 10.1.0.0/16
+  host: 10.10.0.0/16
+nodes:
+  - {name: r1, role: router}
+  - {name: r2, role: router}
+  - {name: r3, role: router}
+  - {name: r4, role: router}
+  - {name: r5, role: router}
+  - {name: r6, role: router}
+hosts:
+  - {name: h1, attach: r1, site: 1}
+  - {name: h3, attach: r3, site: 3}
+  - {name: h4, attach: r4, site: 4}
+links:
+  - {a: r1, b: r2, cost: 10}
+  - {a: r2, b: r3, cost: 10}
+  - {a: r3, b: r4, cost: 10}
+  - {a: r4, b: r5, cost: 10}
+  - {a: r5, b: r6, cost: 10}
+  - {a: r6, b: r1, cost: 10}
+  - {a: r1, b: r4, cost: 25}
+  - {a: r2, b: r5, cost: 30}
