@@ -34,7 +34,7 @@ def test_clean_deploy_has_no_drift(path: Path) -> None:
 
 
 def test_injected_cost_change_is_drift() -> None:
-    path = FIX / "running" / "t2_ospf_r3_running.conf"
+    path = FIX / "running" / "t2_ospf_r1_running.conf"
     gen, node = generated(path.name)
     running = path.read_text().replace(" ip ospf cost 10", " ip ospf cost 99", 1)
     d = diff(gen, running, node)
