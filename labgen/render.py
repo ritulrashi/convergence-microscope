@@ -37,12 +37,12 @@ def _env() -> Environment:
     return env
 
 
-def lab_name(plan: Plan) -> str:
-    return f"cm-{plan.name}-{plan.mode}"
-
-
 def out_dir_name(plan: Plan) -> str:
-    return f"{plan.name}-{plan.mode}"
+    return f"{plan.name}-{plan.mode}" + ("-bfd" if plan.bfd else "")
+
+
+def lab_name(plan: Plan) -> str:
+    return f"cm-{out_dir_name(plan)}"
 
 
 def clab_topology(plan: Plan, frr_image: str) -> dict:
@@ -90,8 +90,9 @@ def render(plan: Plan, frr_image: str) -> dict[str, str]:
     return files
 
 
-def generate(intent: Intent, mode: Mode | None, out_root: Path, frr_image: str) -> Path:
-    plan = build_plan(intent, mode)
+def generate(intent: Intent, mode: Mode | None, out_root: Path, frr_image: str,
+             bfd: bool | None = None) -> Path:
+    plan = build_plan(intent, mode, bfd)
     out = out_root / out_dir_name(plan)
     for rel, content in sorted(render(plan, frr_image).items()):
         p = out / rel

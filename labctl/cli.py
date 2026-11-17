@@ -1,4 +1,4 @@
-"""labctl: bring labs up and down, verify them, snapshot them."""
+"""labctl: bring labs up and down, verify them, snapshot them, check drift."""
 
 from __future__ import annotations
 
@@ -8,6 +8,7 @@ from pathlib import Path
 import typer
 
 from labctl import lab as labmod
+from labctl.drift import diff as drift_diff
 from labctl.results import ResultWriter
 from labctl.snapshot import write_snapshot
 from labctl.verify import verify_wait
@@ -17,14 +18,15 @@ app = typer.Typer(add_completion=False, no_args_is_help=True)
 
 IntentArg = typer.Argument(..., help="intent YAML, e.g. intent/t1-leafspine.yaml")
 ModeOpt = typer.Option(None, help="override routing.mode")
+BfdOpt = typer.Option(None, "--bfd/--no-bfd", help="override routing.bfd")
 
 
 @app.command()
-def up(intent: Path = IntentArg, mode: Mode | None = ModeOpt,
+def up(intent: Path = IntentArg, mode: Mode | None = ModeOpt, bfd: bool | None = BfdOpt,
        wait: float = typer.Option(0, help="then verify, retrying for up to this many seconds")
        ) -> None:
     """Generate configs and deploy the lab."""
-    lab = labmod.load(intent, mode)
+    lab = labmod.load(intent, mode, bfd)
     secs = labmod.up(lab)
     typer.echo(f"deployed {lab.name} in {secs:.1f}s")
     if wait > 0:
@@ -32,9 +34,10 @@ def up(intent: Path = IntentArg, mode: Mode | None = ModeOpt,
 
 
 @app.command()
-def down(intent: Path = IntentArg, mode: Mode | None = ModeOpt) -> None:
+def down(intent: Path = IntentArg, mode: Mode | None = ModeOpt, bfd: bool | None = BfdOpt
+         ) -> None:
     """Destroy the lab."""
-    lab = labmod.load(intent, mode)
+    lab = labmod.load(intent, mode, bfd)
     labmod.down(lab)
     typer.echo(f"destroyed {lab.name}")
 
@@ -53,18 +56,35 @@ def _verify(lab: labmod.Lab, wait: float, out_path: Path | None = None) -> None:
 
 
 @app.command()
-def verify(intent: Path = IntentArg, mode: Mode | None = ModeOpt,
+def verify(intent: Path = IntentArg, mode: Mode | None = ModeOpt, bfd: bool | None = BfdOpt,
            wait: float = typer.Option(0, help="retry for up to this many seconds"),
            out: Path | None = typer.Option(None, help="also write a results JSONL file")) -> None:
     """Check sessions/adjacencies, RIBs, ECMP width and full-mesh host ping."""
-    _verify(labmod.load(intent, mode), wait, out)
+    _verify(labmod.load(intent, mode, bfd), wait, out)
 
 
 @app.command()
-def snapshot(intent: Path = IntentArg, mode: Mode | None = ModeOpt,
+def diff(intent: Path = IntentArg, mode: Mode | None = ModeOpt, bfd: bool | None = BfdOpt
+         ) -> None:
+    """Config drift: each router's running config vs its generated frr.conf."""
+    lab = labmod.load(intent, mode, bfd)
+    drifted = 0
+    for r in lab.plan.routers:
+        running = lab.exec(r.name, "vtysh", "-c", "show running-config").stdout
+        lines = drift_diff((lab.dir / r.name / "frr.conf").read_text(), running, r.name)
+        if lines:
+            drifted += 1
+            typer.echo("\n".join(lines))
+    typer.echo(f"{drifted} of {len(lab.plan.routers)} routers drifted")
+    if drifted:
+        raise typer.Exit(1)
+
+
+@app.command()
+def snapshot(intent: Path = IntentArg, mode: Mode | None = ModeOpt, bfd: bool | None = BfdOpt,
              out: Path = typer.Option(..., help="output JSON path")) -> None:
     """Dump every router's kernel routes and nexthop objects."""
-    typer.echo(str(write_snapshot(labmod.load(intent, mode), out)))
+    typer.echo(str(write_snapshot(labmod.load(intent, mode, bfd), out)))
 
 
 if __name__ == "__main__":

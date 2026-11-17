@@ -1,57 +1,69 @@
-{# Shared header; mode-specific blocks are included below. #}
+{# Emitted in the order and spelling of FRR 10.7 `show running-config`, so
+   `labctl diff` only needs to strip FRR's banner lines (see labctl/drift.py).
+   Defaults that FRR hides are not written: isis metric 10, maximum-paths 64,
+   metric-style wide, bgp log-neighbor-changes. #}
 frr defaults datacenter
 hostname {{ r.name }}
 log stdout informational
 service integrated-vtysh-config
 !
-{% if plan.bfd %}
-bfd
- profile fast
-  transmit-interval {{ r.timers.bfd_tx_ms }}
-  receive-interval {{ r.timers.bfd_rx_ms }}
-  detect-multiplier {{ r.timers.bfd_multiplier }}
- exit
- !
-exit
-!
+{% if plan.mode == "ebgp" %}
+{% include "ebgp_policy.j2" %}
 {% endif %}
-interface lo
- ip address {{ r.loopback }}
-{% if plan.mode == "isis" %}
- ip router isis core
- isis passive
-{% endif %}
-exit
-!
 {% for i in r.ifaces %}
 interface {{ i.name }}
  description {{ i.kind }} to {{ i.peer }}
  ip address {{ i.address }}
 {% if plan.mode == "ospf" and i.kind == "fabric" %}
- ip ospf network point-to-point
- ip ospf cost {{ i.cost }}
- ip ospf hello-interval {{ r.timers.ospf_hello_s }}
- ip ospf dead-interval {{ r.timers.ospf_dead_s }}
 {% if plan.bfd %}
  ip ospf bfd
  ip ospf bfd profile fast
 {% endif %}
+ ip ospf cost {{ i.cost }}
+ ip ospf dead-interval {{ r.timers.ospf_dead_s }}
+ ip ospf hello-interval {{ r.timers.ospf_hello_s }}
+ ip ospf network point-to-point
+{% elif plan.mode == "ospf" %}
+ ip ospf passive
 {% elif plan.mode == "isis" and i.kind == "fabric" %}
  ip router isis core
- isis network point-to-point
- isis circuit-type level-2-only
- isis metric {{ i.cost }}
- isis hello-interval {{ r.timers.isis_hello_s }}
- isis hello-multiplier {{ r.timers.isis_hello_multiplier }}
 {% if plan.bfd %}
  isis bfd
  isis bfd profile fast
 {% endif %}
-{% elif plan.mode == "isis" and i.kind == "host" %}
+ isis circuit-type level-2-only
+{% if i.cost != 10 %}
+ isis metric {{ i.cost }}
+{% endif %}
+ isis hello-interval {{ r.timers.isis_hello_s }}
+ isis hello-multiplier {{ r.timers.isis_hello_multiplier }}
+ isis network point-to-point
+{% elif plan.mode == "isis" %}
  ip router isis core
  isis passive
 {% endif %}
 exit
 !
 {% endfor %}
+interface lo
+ ip address {{ r.loopback }}
+{% if plan.mode == "ospf" %}
+ ip ospf passive
+{% elif plan.mode == "isis" %}
+ ip router isis core
+ isis passive
+{% endif %}
+exit
+!
 {% include plan.mode + ".j2" %}
+{% if plan.bfd %}
+bfd
+ profile fast
+  detect-multiplier {{ r.timers.bfd_multiplier }}
+  receive-interval {{ r.timers.bfd_rx_ms }}
+  transmit-interval {{ r.timers.bfd_tx_ms }}
+ exit
+ !
+exit
+!
+{% endif %}

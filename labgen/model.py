@@ -232,11 +232,14 @@ class Intent(Strict):
                 idx += 1
         return out
 
-    def with_mode(self, mode: Mode | None) -> Intent:
-        if mode is None or mode is self.routing.mode:
+    def with_overrides(self, mode: Mode | None = None, bfd: bool | None = None) -> Intent:
+        if (mode is None or mode is self.routing.mode) and (bfd is None or bfd == self.routing.bfd):
             return self
         data = self.model_dump(mode="json")
-        data["routing"]["mode"] = mode.value
+        if mode is not None:
+            data["routing"]["mode"] = mode.value
+        if bfd is not None:
+            data["routing"]["bfd"] = bfd
         return Intent.model_validate(data)
 
 

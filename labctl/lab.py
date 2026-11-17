@@ -71,10 +71,10 @@ class Lab:
                    timeout=timeout)
 
 
-def load(intent: Path, mode: Mode | None) -> Lab:
+def load(intent: Path, mode: Mode | None, bfd: bool | None = None) -> Lab:
     it = load_intent(intent)
-    plan = build_plan(it, mode)
-    out = generate(it, mode, GENERATED, frr_image())
+    plan = build_plan(it, mode, bfd)
+    out = generate(it, mode, GENERATED, frr_image(), bfd)
     return Lab(plan, out)
 
 

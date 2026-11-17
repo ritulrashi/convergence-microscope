@@ -1,0 +1,14 @@
+ip prefix-list LOCAL seq 5 permit {{ r.loopback }}
+{% for s in r.host_subnets %}
+ip prefix-list LOCAL seq {{ 10 + loop.index0 * 5 }} permit {{ s }}
+{% endfor %}
+!
+route-map IMPORT permit 10
+exit
+!
+route-map EXPORT permit 10
+{% if r.role == "leaf" %}
+ match ip address prefix-list LOCAL
+{% endif %}
+exit
+!

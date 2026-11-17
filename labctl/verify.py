@@ -81,7 +81,7 @@ def peer_states(mode: str, data: dict) -> dict[str, str]:
                 adj = c.get("adj")
                 if adj is None:
                     continue
-                st = c.get("interface", {}).get("state") or c.get("state") or "?"
+                st = c.get("state", "?")
                 states[adj] = st
     return states
 

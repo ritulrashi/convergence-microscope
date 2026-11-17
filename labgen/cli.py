@@ -24,11 +24,12 @@ def main() -> None:
 def render(
     intent: Path,
     mode: Mode | None = typer.Option(None, help="override routing.mode"),
+    bfd: bool | None = typer.Option(None, "--bfd/--no-bfd", help="override routing.bfd"),
     out: Path = typer.Option(REPO / "generated", help="output root"),
 ) -> None:
     """Validate INTENT and write generated/<name>-<mode>/."""
     try:
-        path = generate(load_intent(intent), mode, out, frr_image())
+        path = generate(load_intent(intent), mode, out, frr_image(), bfd)
     except (ValidationError, PoolExhausted) as e:
         typer.echo(f"invalid intent {intent}:\n{e}", err=True)
         raise typer.Exit(1) from e

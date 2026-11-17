@@ -90,8 +90,8 @@ def _isis_net(loopback: ipaddress.IPv4Address) -> str:
     return f"49.0001.{digits[0:4]}.{digits[4:8]}.{digits[8:12]}.00"
 
 
-def build_plan(intent: Intent, mode: Mode | None = None) -> Plan:
-    intent = intent.with_mode(mode)
+def build_plan(intent: Intent, mode: Mode | None = None, bfd: bool | None = None) -> Plan:
+    intent = intent.with_overrides(mode, bfd)
     pools = intent.pools
     asns = intent.router_asns()
 
