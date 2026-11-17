@@ -18,6 +18,7 @@
   // Go is installed into /opt/go by post-create.sh. The go feature unpacks over
   // the image's bundled /usr/local/go (1.22) and leaves stale runtime files.
   "remoteEnv": {
+    "GOROOT": "/opt/go",
     "PATH": "/opt/go/bin:/home/vscode/go/bin:${containerEnv:PATH}"
   },
   "postCreateCommand": "bash .devcontainer/post-create.sh",

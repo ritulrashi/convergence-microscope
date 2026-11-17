@@ -2,6 +2,9 @@
 # bpftool); the generated *_bpfel.{go,o} files are committed so plain `go build`
 # works without clang.
 SHELL := /bin/bash
+# The base image exports GOROOT=/usr/local/go (Go 1.22); always use /opt/go.
+export GOROOT := /opt/go
+export PATH := /opt/go/bin:$(PATH)
 GO ?= go
 FRR_IMAGE := $(shell cat images/frr-image.txt)
 
