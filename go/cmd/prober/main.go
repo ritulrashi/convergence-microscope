@@ -253,10 +253,11 @@ func main() {
 				if due >= end {
 					return
 				}
-				// Sleep for most of the wait, then yield-spin: time.Sleep
-				// alone overshoots by tens of microseconds or more.
-				if wait := due - mono.Now(); wait > 200_000 {
-					time.Sleep(time.Duration(wait - 150_000))
+				// Sleep for most of the wait, then yield-spin the last 50 us:
+				// time.Sleep alone overshoots, and a longer spin steals CPU
+				// from the routers on a small VM.
+				if wait := due - mono.Now(); wait > 60_000 {
+					time.Sleep(time.Duration(wait - 50_000))
 				}
 				for mono.Now() < due {
 					runtime.Gosched()
