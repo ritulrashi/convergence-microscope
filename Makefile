@@ -26,7 +26,7 @@ ebpfcheck: generate
 
 build:
 	mkdir -p build
-	cd go && for c in prober recorder ebpfcheck; do $(GO) build -o ../build/$$c ./cmd/$$c || exit 1; done
+	cd go && for c in prober recorder ebpfcheck tracer; do $(GO) build -o ../build/$$c ./cmd/$$c || exit 1; done
 
 test: test-go test-py
 

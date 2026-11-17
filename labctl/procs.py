@@ -192,3 +192,56 @@ def wait_probers(lab: Lab, pr: ProbeRun, out: Path, timeout_s: float) -> list[di
                 f.write(json.dumps(rec, sort_keys=True) + "\n")
             tmp.unlink()
     return stats
+
+
+# --- tracer --------------------------------------------------------------------
+
+
+@dataclass
+class Tracer:
+    out: Path
+    proc: subprocess.Popen
+
+
+def start_tracer(lab: Lab, out: Path, timeout_s: float = 20) -> Tracer:
+    """One tracer for the whole lab: every router and host netns is named."""
+    out.parent.mkdir(parents=True, exist_ok=True)
+    ready = out.parent / ".ready_tracer"
+    ready.unlink(missing_ok=True)
+    cmd = [*sudo_prefix(), str(BUILD / "tracer"), "-out", str(out), "-ready", str(ready)]
+    for n in [r.name for r in lab.plan.routers] + [h.name for h in lab.plan.hosts]:
+        cmd += ["-ns", f"{n}=/proc/{lab.pid(n)}/ns/net"]
+    p = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
+    deadline = time.monotonic() + timeout_s
+    while not ready.exists():
+        if p.poll() is not None:
+            raise RuntimeError(f"tracer exited: {p.stderr.read()}")
+        if time.monotonic() > deadline:
+            p.kill()
+            raise TimeoutError("tracer not ready")
+        time.sleep(0.05)
+    ready.unlink()
+    return Tracer(out, p)
+
+
+def stop_tracer(t: Tracer) -> dict:
+    t.proc.send_signal(signal.SIGTERM)
+    try:
+        t.proc.wait(timeout=15)
+    except subprocess.TimeoutExpired:
+        t.proc.kill()
+    last = t.out.read_text().strip().splitlines()[-1:] if t.out.exists() else []
+    rec = json.loads(last[0]) if last else {}
+    if rec.get("kind") != "stats":
+        rec = {"kind": "stats", "valid": False, "invalid_reason": "tracer wrote no stats record"}
+    return rec
+
+
+def read_hops(path: Path) -> list[dict]:
+    out = []
+    for line in path.read_text().splitlines():
+        if line.strip():
+            x = json.loads(line)
+            if "ev" in x:
+                out.append(x)
+    return out

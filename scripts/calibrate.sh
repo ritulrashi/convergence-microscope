@@ -5,3 +5,5 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 python3 -m bench.calib_recorder
+# Tier A only (reports/phase0.md): the eBPF tracer.
+python3 -m bench.calib_tracer
