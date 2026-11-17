@@ -160,6 +160,7 @@ func main() {
 	grace := flag.Duration("grace", 2*time.Second, "keep receiving this long after sending ends")
 	tol := flag.Duration("tolerance", 5*time.Millisecond, "max allowed lateness of any send")
 	out := flag.String("out", "-", "output JSONL path (- = stdout)")
+	packets := flag.Bool("packets", true, "log every sent and received packet (false: stats only)")
 	flag.Parse()
 
 	// Fewer GC cycles on the per-packet path.
@@ -230,7 +231,9 @@ func main() {
 				ttl = cm.TTL
 			}
 			recv.Add(1)
-			ck.recv(p, t, ttl)
+			if *packets {
+				ck.recv(p, t, ttl)
+			}
 		}
 	}()
 
@@ -280,7 +283,9 @@ func main() {
 					sendErr.Add(1)
 				}
 				sent.Add(1)
-				ck.send(uint8(*id), d.id, sp, seq, now)
+				if *packets {
+					ck.send(uint8(*id), d.id, sp, seq, now)
+				}
 			}
 		}(d)
 	}

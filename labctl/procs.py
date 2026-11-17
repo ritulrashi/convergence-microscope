@@ -127,6 +127,7 @@ def start_probers(
     lead_s: float = 1.0,
     tolerance_ms: float = 5.0,
     grace_s: float = 2.0,
+    packets: bool = True,
 ) -> ProbeRun:
     """Start one prober per host. All share start_ns (CLOCK_MONOTONIC, shared kernel)."""
     ids = host_ids(lab)
@@ -159,6 +160,8 @@ def start_probers(
         ]
         if dsts:
             cmd += ["-dst", dsts]
+        if not packets:
+            cmd += ["-packets=false"]
         procs[h] = subprocess.Popen(
             cmd, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True
         )
