@@ -47,7 +47,8 @@ def frr_image() -> str:
 
 
 def machine_record() -> dict:
-    status = _run(["git", "status", "--porcelain"])
+    # results/ is excluded: the run writing this record is itself adding files there.
+    status = _run(["git", "status", "--porcelain", "--", ".", ":!results"])
     return {
         "record": "machine",
         "cpu_count": os.cpu_count(),
