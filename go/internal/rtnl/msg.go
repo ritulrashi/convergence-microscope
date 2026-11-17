@@ -75,6 +75,16 @@ type Msg struct {
 	Data []byte
 }
 
+// Encode returns m as one netlink message (header plus payload).
+func (m Msg) Encode() []byte {
+	l := 16 + len(m.Data)
+	b := make([]byte, align(l))
+	binary.LittleEndian.PutUint32(b[0:], uint32(l))
+	binary.LittleEndian.PutUint16(b[4:], m.Type)
+	copy(b[16:], m.Data)
+	return b
+}
+
 // Split splits a buffer returned by one recv into netlink messages.
 func Split(b []byte) ([]Msg, error) {
 	var out []Msg

@@ -13,15 +13,11 @@ package main
 
 import (
 	"bufio"
-	"encoding/hex"
-	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
-	"net/netip"
 	"os"
 	"os/signal"
-	"slices"
 	"sync/atomic"
 	"syscall"
 	"time"
@@ -30,73 +26,8 @@ import (
 	"github.com/ritulrashi/convergence-microscope/go/internal/rtnl"
 )
 
-type out struct {
-	w      *bufio.Writer
-	router string
-}
-
-func (o *out) rec(v map[string]any) {
-	v["router"] = o.router
-	b, _ := json.Marshal(v)
-	o.w.Write(b)
-	o.w.WriteByte('\n')
-}
-
-func (o *out) changes(t int64, via, msg string, cs []rtnl.Change) {
-	for _, c := range cs {
-		o.rec(map[string]any{"kind": "fib", "t": t, "prefix": c.Prefix.String(),
-			"old": nonNil(c.Old), "new": nonNil(c.New), "via": via, "msg": msg})
-	}
-}
-
-func nonNil(s []string) []string {
-	if s == nil {
-		return []string{}
-	}
-	return s
-}
-
-var msgName = map[uint16]string{
-	rtnl.RTM_NEWROUTE: "NEWROUTE", rtnl.RTM_DELROUTE: "DELROUTE",
-	rtnl.RTM_NEWNEXTHOP: "NEWNEXTHOP", rtnl.RTM_DELNEXTHOP: "DELNEXTHOP",
-	rtnl.RTM_NEWLINK: "NEWLINK", rtnl.RTM_DELLINK: "DELLINK",
-}
-
-// apply feeds one message into the state and logs what changed. It reports
-// whether the message took a link down (the caller then cross-checks).
-func apply(st *rtnl.State, o *out, t int64, via string, m rtnl.Msg) (bool, error) {
-	switch m.Type {
-	case rtnl.RTM_NEWROUTE, rtnl.RTM_DELROUTE:
-		r, err := rtnl.ParseRoute(m.Data)
-		if err != nil {
-			return false, nil // non-IPv4 family on a shared group: ignore
-		}
-		o.changes(t, via, msgName[m.Type], st.ApplyRoute(r, m.Type == rtnl.RTM_DELROUTE))
-	case rtnl.RTM_NEWNEXTHOP, rtnl.RTM_DELNEXTHOP:
-		n, err := rtnl.ParseNexthop(m.Data)
-		if err != nil {
-			return false, err
-		}
-		o.changes(t, via, msgName[m.Type], st.ApplyNexthop(n, m.Type == rtnl.RTM_DELNEXTHOP))
-	case rtnl.RTM_NEWLINK, rtnl.RTM_DELLINK:
-		l, err := rtnl.ParseLink(m.Data)
-		if err != nil {
-			return false, err
-		}
-		if via == "event" {
-			o.rec(map[string]any{"kind": "link", "t": t, "ifname": st.Ifname(l.Index),
-				"ifindex": l.Index, "up": l.Up, "running": l.Running, "lower_up": l.LowerUp,
-				"msg": msgName[m.Type]})
-		}
-		// The kernel flushes FIB state on link down without netlink messages.
-		o.changes(t, "link-flush", msgName[m.Type], st.ApplyLink(l, m.Type == rtnl.RTM_DELLINK))
-		return l.AdminDown() || l.CarrierDown(), nil
-	}
-	return false, nil
-}
-
 // dumpAll loads links, then nexthops, then routes into a fresh state.
-func dumpAll(c *rtnl.Conn) (*rtnl.State, error) {
+func dumpAll(c *rtnl.Conn, raw *rawLog) (*rtnl.State, error) {
 	st := rtnl.NewState()
 	discard := &out{w: bufio.NewWriter(nopWriter{})}
 	for _, typ := range []uint16{rtnl.RTM_GETLINK, rtnl.RTM_GETNEXTHOP, rtnl.RTM_GETROUTE} {
@@ -104,7 +35,9 @@ func dumpAll(c *rtnl.Conn) (*rtnl.State, error) {
 		if err != nil {
 			return nil, fmt.Errorf("dump %d: %w", typ, err)
 		}
+		t := mono.Now()
 		for _, m := range ms {
+			raw.put(t, "dump", m.Encode())
 			if _, err := apply(st, discard, 0, "dump", m); err != nil {
 				return nil, err
 			}
@@ -112,10 +45,6 @@ func dumpAll(c *rtnl.Conn) (*rtnl.State, error) {
 	}
 	return st, nil
 }
-
-type nopWriter struct{}
-
-func (nopWriter) Write(b []byte) (int, error) { return len(b), nil }
 
 func main() {
 	router := flag.String("router", "", "router name written on every record")
@@ -146,18 +75,18 @@ func main() {
 		}
 	}
 	o := &out{w: bufio.NewWriterSize(f, 1<<20), router: *router}
-	var raw *bufio.Writer
+	var raw *rawLog
 	if *rawPath != "" {
 		rf, err := os.Create(*rawPath)
 		if err != nil {
 			fail(err)
 		}
 		defer rf.Close()
-		raw = bufio.NewWriter(rf)
+		raw = &rawLog{bufio.NewWriter(rf)}
 	}
 
 	// Subscribed first, so nothing between the dump and the first recv is lost.
-	st, err := dumpAll(c)
+	st, err := dumpAll(c, raw)
 	if err != nil {
 		fail(err)
 	}
@@ -182,7 +111,7 @@ func main() {
 		t := mono.Now()
 		if checkAt != 0 && t >= checkAt {
 			checkAt = 0
-			fresh, derr := dumpAll(c)
+			fresh, derr := dumpAll(c, nil)
 			if derr != nil {
 				fail(derr)
 			}
@@ -200,7 +129,7 @@ func main() {
 		if errors.Is(err, rtnl.ErrOverrun) {
 			overruns++
 			o.rec(map[string]any{"kind": "overrun", "t": t})
-			fresh, derr := dumpAll(c)
+			fresh, derr := dumpAll(c, raw)
 			if derr != nil {
 				fail(derr)
 			}
@@ -215,9 +144,7 @@ func main() {
 			continue
 		}
 		datagrams++
-		if raw != nil {
-			fmt.Fprintf(raw, "%d %s\n", t, hex.EncodeToString(b))
-		}
+		raw.put(t, "event", b)
 		ms, err := rtnl.Split(b)
 		if err != nil {
 			parseErrs++
@@ -244,30 +171,6 @@ func main() {
 		"check_mismatches": mismatches, "valid": valid, "invalid_reason": reason})
 	o.w.Flush()
 	if raw != nil {
-		raw.Flush()
+		raw.w.Flush()
 	}
-}
-
-// resync reports every prefix whose set differs between the old and new state.
-func resync(old, fresh *rtnl.State) []rtnl.Change {
-	seen := map[netip.Prefix]bool{}
-	var cs []rtnl.Change
-	for _, s := range []*rtnl.State{old, fresh} {
-		for _, p := range s.Prefixes() {
-			if seen[p] {
-				continue
-			}
-			seen[p] = true
-			a, b := old.Effective(p), fresh.Effective(p)
-			if !slices.Equal(a, b) {
-				cs = append(cs, rtnl.Change{Prefix: p, Old: a, New: b})
-			}
-		}
-	}
-	return cs
-}
-
-func fail(err error) {
-	fmt.Fprintln(os.Stderr, "recorder:", err)
-	os.Exit(2)
 }
