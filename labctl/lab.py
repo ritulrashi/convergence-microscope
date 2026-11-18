@@ -6,7 +6,7 @@ import json
 import shutil
 import subprocess
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from labctl.machine import frr_image
@@ -41,6 +41,9 @@ def sudo_prefix() -> list[str]:
 class Lab:
     plan: Plan
     dir: Path
+    # Container PIDs, cached so firing an event does not wait on `docker
+    # inspect`; cleared by up() and down(), which replace the containers.
+    pids: dict[str, int] = field(default_factory=dict)
 
     @property
     def name(self) -> str:
@@ -63,8 +66,10 @@ class Lab:
         return json.loads(out) if out.strip() else {}
 
     def pid(self, node: str) -> int:
-        out = run(["docker", "inspect", "-f", "{{.State.Pid}}", self.container(node)]).stdout
-        return int(out.strip())
+        if node not in self.pids:
+            out = run(["docker", "inspect", "-f", "{{.State.Pid}}", self.container(node)]).stdout
+            self.pids[node] = int(out.strip())
+        return self.pids[node]
 
     def netns_exec(
         self, node: str, *args: str, timeout: float = 30
@@ -101,6 +106,7 @@ def ensure_host_image() -> None:
 
 def up(lab: Lab) -> float:
     """Deploy; return seconds the deploy command took."""
+    lab.pids.clear()
     ensure_host_image()
     if shutil.which("containerlab") is None:
         raise CmdError("containerlab not found")
@@ -113,4 +119,5 @@ def up(lab: Lab) -> float:
 
 
 def down(lab: Lab) -> None:
+    lab.pids.clear()
     run([*sudo_prefix(), "containerlab", "destroy", "-t", str(lab.topo), "--cleanup"], timeout=300)

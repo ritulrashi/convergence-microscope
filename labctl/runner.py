@@ -37,6 +37,10 @@ from labctl.verify import verify_wait
 from labgen.render import REPO
 
 
+def _jsonl_rows(path: Path) -> list[dict]:
+    return [json.loads(x) for x in path.read_text().splitlines() if x.strip()]
+
+
 def gzip_file(path: Path) -> None:
     with path.open("rb") as a, gzip.open(str(path) + ".gz", "wb", compresslevel=6) as b:
         shutil.copyfileobj(a, b)
@@ -93,6 +97,21 @@ def do_run(
     merge_fib_events(recs, d / "fib_events.jsonl")
     shutil.rmtree(d / "rec")
 
+    # The command's own latency (sudo, nsenter) sits between t_ev0 and the
+    # change taking effect. For link events the recorder saw the kernel's
+    # link change: that is the event time. Otherwise the command's end bounds it.
+    t_event, t_source = t_ev1, "event command end"
+    if event in ("carrier_down", "link_up"):
+        for e in _jsonl_rows(d / "fib_events.jsonl"):
+            if (
+                e.get("kind") == "link"
+                and e.get("router") == loc.node
+                and e.get("ifname") == loc.iface
+                and e["t"] >= t_ev0
+            ):
+                t_event, t_source = e["t"], "recorder link event"
+                break
+
     ev.undo()
     res2, restore_s, _ = verify_wait(lab, restore_timeout_s)
     if not res2.ok:
@@ -120,7 +139,9 @@ def do_run(
         "rate_pps_per_pair": rate,
         "probe_start_ns": pr.start_ns,
         "probe_end_ns": pr.start_ns + int(duration_s * 1e9),
-        "event_t_ns": t_ev0,
+        "event_t_ns": t_event,
+        "event_time_source": t_source,
+        "event_cmd_start_ns": t_ev0,
         "event_cmd_ns": t_ev1 - t_ev0,
         "tracer": tracer,
         "cpu_util": round(cpu, 4),

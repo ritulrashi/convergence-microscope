@@ -114,16 +114,18 @@ def make_event(lab: Lab, name: str, loc: Location) -> Event:
         )
     if name == "node_down":
 
+        pids: list[int] = []
+
+        def resolve() -> None:
+            # Done in prepare so firing the event is a single kill.
+            pids[:] = frr_pids(lab, loc.node)
+            if not pids:
+                raise RuntimeError(f"no FRR processes on {loc.node}")
+
         def signal(sig: str) -> Callable[[], None]:
-            def f() -> None:
-                pids = frr_pids(lab, loc.node)
-                if not pids:
-                    raise RuntimeError(f"no FRR processes on {loc.node}")
-                run([*sudo_prefix(), "kill", f"-{sig}", *map(str, pids)])
+            return lambda: run([*sudo_prefix(), "kill", f"-{sig}", *map(str, pids)])
 
-            return f
-
-        return Event(name, loc, signal("STOP"), signal("CONT"))
+        return Event(name, loc, signal("STOP"), signal("CONT"), prepare=resolve)
     raise ValueError(f"unknown event {name}")
 
 
