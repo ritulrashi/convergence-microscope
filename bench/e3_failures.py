@@ -97,6 +97,7 @@ def main(
                                     seed=i,
                                     out_root=out_dir / "runs",
                                     keep_raw=keep_raw_first and i == 0,
+                                    resume=True,
                                 )
                             except Exception as e:  # keep going; record the failure
                                 w.write(

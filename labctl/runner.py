@@ -60,12 +60,16 @@ def do_run(
     keep_raw: bool = False,
     tag: str = "",
     restore_timeout_s: float = 180.0,
+    resume: bool = False,
 ) -> dict:
     loc = choose_location(lab, event, seed, location)
     ev = make_event(lab, event, loc)
     loc_str = loc.node if loc.kind == "node" else f"{loc.node}:{loc.iface}-{loc.peer}"
     run_id = f"{lab.name.removeprefix('cm-')}-{event}-s{seed}{tag}"
     d = out_root / run_id
+    if resume and (d / "report.json").exists():
+        # Finished in an earlier, interrupted batch: reuse it.
+        return json.loads((d / "report.json").read_text())
     if d.exists():
         shutil.rmtree(d)
     d.mkdir(parents=True)

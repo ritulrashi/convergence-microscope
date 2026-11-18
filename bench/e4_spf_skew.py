@@ -82,6 +82,7 @@ def main(
                         out_root=out_dir / "runs",
                         location="r3-r4",
                         keep_raw=i == 0,
+                        resume=True,
                     )
                     run = json.loads((out_dir / "runs" / rep["run_id"] / "run.json").read_text())
                     row = {
