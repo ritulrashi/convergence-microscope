@@ -1,0 +1,45 @@
+{
+  "blackhole": [
+    "2@ip_error",
+    "70@ip_error"
+  ],
+  "cases": {
+    "blackhole": [
+      {
+        "code": 2,
+        "count": 200,
+        "location": "ip_error",
+        "name": "NOT_SPECIFIED"
+      }
+    ],
+    "loop": [
+      {
+        "code": 11,
+        "count": 200,
+        "location": "ip_forward",
+        "name": "IP_INHDR"
+      }
+    ],
+    "no_route": [
+      {
+        "code": 70,
+        "count": 200,
+        "location": "ip_error",
+        "name": "IP_INNOROUTES"
+      }
+    ],
+    "unreachable": [
+      {
+        "code": 2,
+        "count": 200,
+        "location": "ip_error",
+        "name": "NOT_SPECIFIED"
+      }
+    ]
+  },
+  "kernel": "6.8.0-1070-azure",
+  "source": "results/calibration/tracer.jsonl",
+  "ttl_expired": [
+    "11@ip_forward"
+  ]
+}
