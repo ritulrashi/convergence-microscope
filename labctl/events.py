@@ -113,7 +113,6 @@ def make_event(lab: Lab, name: str, loc: Location) -> Event:
             prepare=ip("link", "set", loc.iface, "down"),
         )
     if name == "node_down":
-
         pids: list[int] = []
 
         def resolve() -> None:

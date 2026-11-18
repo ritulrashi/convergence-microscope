@@ -111,6 +111,13 @@ def do_run(
             ):
                 t_event, t_source = e["t"], "recorder link event"
                 break
+    elif event == "silent_down" and tr is not None:
+        # netem drops leave no link event; the first probe dropped at the
+        # failed interface is when the failure took effect.
+        for h in _jsonl_rows(d / "hops.jsonl"):
+            if h.get("ev") == "drop" and h.get("node") == loc.node and h["t"] >= t_ev0:
+                if t_source != "tracer first drop" or h["t"] < t_event:
+                    t_event, t_source = h["t"], "tracer first drop"
 
     ev.undo()
     res2, restore_s, _ = verify_wait(lab, restore_timeout_s)

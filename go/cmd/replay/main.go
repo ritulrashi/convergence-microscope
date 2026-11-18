@@ -200,7 +200,7 @@ func main() {
 
 	predCount := map[replay.Fate]int{}
 	obsCount := map[string]int{}
-	var agreeN, agreeOK, transN, transOK int
+	var agreeN, agreeOK, fibN, fibOK, transN, transOK int
 	mismatchClass := map[string]int{}
 	lossByCause := map[string]int{}
 	for _, k := range keys {
@@ -266,6 +266,14 @@ func main() {
 			if match {
 				agreeOK++
 			}
+			// FIB-only agreement leaves out packets dropped for a reason the
+			// FIB cannot show (e.g. netem on a silently failed link).
+			if !strings.HasPrefix(obs, "other:") {
+				fibN++
+				if match {
+					fibOK++
+				}
+			}
 		}
 		if obs == "delivered" && p.Fate == replay.Delivered {
 			continue
@@ -305,16 +313,18 @@ func main() {
 	loopW.close()
 
 	sum := map[string]any{
-		"tier":               map[bool]string{true: "A", false: "B"}[tierA],
-		"probes":             len(keys),
-		"per_hop_latency_ns": perHop,
-		"predicted":          predCount,
-		"observed":           obsCount,
-		"lost_by_cause":      lossByCause,
-		"fate_agreement":     ratio(agreeOK, agreeN),
-		"fate_agreement_n":   agreeN,
-		"mismatch_classes":   mismatchClass,
-		"fib_loops":          len(loops),
+		"tier":                 map[bool]string{true: "A", false: "B"}[tierA],
+		"probes":               len(keys),
+		"per_hop_latency_ns":   perHop,
+		"predicted":            predCount,
+		"observed":             obsCount,
+		"lost_by_cause":        lossByCause,
+		"fate_agreement":       ratio(agreeOK, agreeN),
+		"fate_agreement_n":     agreeN,
+		"fate_agreement_fib":   ratio(fibOK, fibN),
+		"fate_agreement_fib_n": fibN,
+		"mismatch_classes":     mismatchClass,
+		"fib_loops":            len(loops),
 	}
 	if tierA {
 		sum["path_consistency"] = ratio(transOK, transN)

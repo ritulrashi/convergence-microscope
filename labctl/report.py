@@ -101,6 +101,10 @@ def attribute(run_dir: Path) -> dict:
         "microloops": microloops,
         "observed_loop_packets": by_cause.get("microloop", 0),
         "fib_changes_after_event": len(fib_after),
+        # Loss still happening in the last 100 ms of probing: "last loss" is
+        # then the end of the run, not convergence.
+        "loss_ongoing_at_end": bool(lost_after)
+        and max(lost_after) >= run["probe_end_ns"] - 100_000_000,
         "convergence_last_fib_change_ms": round((max(fib_after) - t_ev) / 1e6, 3)
         if fib_after
         else None,
@@ -109,7 +113,14 @@ def attribute(run_dir: Path) -> dict:
         else None,
         "replay": {
             k: summary.get(k)
-            for k in ("fate_agreement", "fate_agreement_n", "path_consistency", "mismatch_classes")
+            for k in (
+                "fate_agreement",
+                "fate_agreement_n",
+                "fate_agreement_fib",
+                "fate_agreement_fib_n",
+                "path_consistency",
+                "mismatch_classes",
+            )
         },
     }
 
@@ -226,5 +237,5 @@ document.querySelectorAll('input[data-k]').forEach(cb => cb.addEventListener('ch
 def write_report(run_dir: Path) -> dict:
     rep = attribute(run_dir)
     (run_dir / "report.json").write_text(json.dumps(rep, indent=2, sort_keys=True) + "\n")
-    (run_dir / "timeline.html").write_text(timeline_html(run_dir, rep))
+    (run_dir / "timeline.html").write_text(timeline_html(run_dir, rep), encoding="utf-8")
     return rep
