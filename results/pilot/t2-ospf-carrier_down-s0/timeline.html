@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Run timeline</title>
+<style>
+:root { --bg:#fff; --fg:#111; --muted:#888; --grid:#e4e4e4; --fib:#2a6fdb; --loop:rgba(232,128,0,.25); --event:#000; }
+@media (prefers-color-scheme: dark) { :root { --bg:#111; --fg:#eee; --muted:#999; --grid:#2c2c2c; --fib:#6aa0ff; --loop:rgba(255,160,40,.3); --event:#fff; } }
+body { background:var(--bg); color:var(--fg); font:14px system-ui,sans-serif; margin:16px; }
+.lbl { fill:var(--fg); font-size:12px; } .tick { fill:var(--muted); font-size:11px; }
+.row { stroke:var(--grid); } .fib { stroke:var(--fib); stroke-width:1.5; }
+.loop { fill:var(--loop); } .event { stroke:var(--event); stroke-dasharray:4 3; }
+.wrap { overflow-x:auto; } label { margin-right:12px; }
+</style></head><body>
+<h1 style="font-size:18px">t2-ospf-carrier_down-s0</h1>
+<p>mesh ospf, carrier_down at r3:eth2-r4, seed 0. Lost 64 of 24000: blackhole 62, microloop 1, other 1, unknown 0. Cause source: observed (tracer). Valid: True.</p>
+<p><label><input type="checkbox" checked data-c="blackhole"> <span style="color:#d14">●</span> blackhole</label> <label><input type="checkbox" checked data-c="microloop"> <span style="color:#e80">●</span> microloop</label> <label><input type="checkbox" checked data-c="other"> <span style="color:#73b">●</span> other</label> <label><input type="checkbox" checked data-c="unknown"> <span style="color:#777">●</span> unknown</label> <label><input type="checkbox" checked data-k="fib"> FIB changes</label>
+<label><input type="checkbox" checked data-k="loop"> microloops (from FIB)</label></p>
+<div class="wrap"><svg width="1210" height="332" role="img" aria-label="timeline"><text x="8" y="44" class="lbl">r1</text>
+<line x1="90" y1="40" x2="1190" y2="40" class="row"/>
+<text x="8" y="72" class="lbl">r2</text>
+<line x1="90" y1="68" x2="1190" y2="68" class="row"/>
+<text x="8" y="100" class="lbl">r3</text>
+<line x1="90" y1="96" x2="1190" y2="96" class="row"/>
+<text x="8" y="128" class="lbl">r4</text>
+<line x1="90" y1="124" x2="1190" y2="124" class="row"/>
+<text x="8" y="156" class="lbl">r5</text>
+<line x1="90" y1="152" x2="1190" y2="152" class="row"/>
+<text x="8" y="184" class="lbl">r6</text>
+<line x1="90" y1="180" x2="1190" y2="180" class="row"/>
+<text x="8" y="212" class="lbl">h1</text>
+<line x1="90" y1="208" x2="1190" y2="208" class="row"/>
+<text x="8" y="240" class="lbl">h3</text>
+<line x1="90" y1="236" x2="1190" y2="236" class="row"/>
+<text x="8" y="268" class="lbl">h4</text>
+<line x1="90" y1="264" x2="1190" y2="264" class="row"/>
+<rect class="loop" x="374.6" y="59" width="2.0" height="18"><title>loop to 10.10.4.10: r2, r3, 1.38 ms</title></rect>
+<rect class="loop" x="374.6" y="87" width="2.0" height="18"><title>loop to 10.10.4.10: r2, r3, 1.38 ms</title></rect>
+<rect class="loop" x="374.8" y="143" width="2.0" height="18"><title>loop to 10.10.3.10: r5, r6, 0.03 ms</title></rect>
+<rect class="loop" x="374.8" y="171" width="2.0" height="18"><title>loop to 10.10.3.10: r5, r6, 0.03 ms</title></rect>
+<line class="fib" x1="366.2" y1="88" x2="366.2" y2="104"><title>r3 10.0.0.4/32: [&#x27;10.1.0.5@eth2&#x27;] -&gt; [] (link-flush) at 0.000 ms</title></line>
+<line class="fib" x1="366.2" y1="88" x2="366.2" y2="104"><title>r3 10.0.0.5/32: [&#x27;10.1.0.5@eth2&#x27;] -&gt; [] (link-flush) at 0.000 ms</title></line>
+<line class="fib" x1="366.2" y1="88" x2="366.2" y2="104"><title>r3 10.0.0.6/32: [&#x27;10.1.0.2@eth1&#x27;, &#x27;10.1.0.5@eth2&#x27;] -&gt; [&#x27;10.1.0.2@eth1&#x27;] (link-flush) at 0.000 ms</title></line>
+<line class="fib" x1="366.2" y1="88" x2="366.2" y2="104"><title>r3 10.1.0.12/31: [&#x27;10.1.0.5@eth2&#x27;] -&gt; [] (link-flush) at 0.000 ms</title></line>
+<line class="fib" x1="366.2" y1="88" x2="366.2" y2="104"><title>r3 10.1.0.4/31: [&#x27;direct@eth2&#x27;] -&gt; [] (link-flush) at 0.000 ms</title></line>
+<line class="fib" x1="366.2" y1="88" x2="366.2" y2="104"><title>r3 10.1.0.6/31: [&#x27;10.1.0.5@eth2&#x27;] -&gt; [] (link-flush) at 0.000 ms</title></line>
+<line class="fib" x1="366.2" y1="88" x2="366.2" y2="104"><title>r3 10.1.0.8/31: [&#x27;10.1.0.5@eth2&#x27;] -&gt; [] (link-flush) at 0.000 ms</title></line>
+<line class="fib" x1="366.2" y1="88" x2="366.2" y2="104"><title>r3 10.10.4.0/24: [&#x27;10.1.0.5@eth2&#x27;] -&gt; [] (link-flush) at 0.000 ms</title></line>
+<line class="fib" x1="366.3" y1="116" x2="366.3" y2="132"><title>r4 10.0.0.2/32: [&#x27;10.1.0.4@eth1&#x27;] -&gt; [] (link-flush) at 0.816 ms</title></line>
+<line class="fib" x1="366.3" y1="116" x2="366.3" y2="132"><title>r4 10.0.0.3/32: [&#x27;10.1.0.4@eth1&#x27;] -&gt; [] (link-flush) at 0.816 ms</title></line>
+<line class="fib" x1="366.3" y1="116" x2="366.3" y2="132"><title>r4 10.1.0.0/31: [&#x27;10.1.0.4@eth1&#x27;] -&gt; [] (link-flush) at 0.816 ms</title></line>
+<line class="fib" x1="366.3" y1="116" x2="366.3" y2="132"><title>r4 10.1.0.2/31: [&#x27;10.1.0.4@eth1&#x27;] -&gt; [] (link-flush) at 0.816 ms</title></line>
+<line class="fib" x1="366.3" y1="116" x2="366.3" y2="132"><title>r4 10.10.3.0/24: [&#x27;10.1.0.4@eth1&#x27;] -&gt; [] (link-flush) at 0.816 ms</title></line>
+<line class="fib" x1="374.6" y1="88" x2="374.6" y2="104"><title>r3 10.0.0.4/32: [] -&gt; [&#x27;10.1.0.2@eth1&#x27;] (event) at 61.030 ms</title></line>
+<line class="fib" x1="374.6" y1="88" x2="374.6" y2="104"><title>r3 10.0.0.5/32: [] -&gt; [&#x27;10.1.0.2@eth1&#x27;] (event) at 61.145 ms</title></line>
+<line class="fib" x1="374.6" y1="88" x2="374.6" y2="104"><title>r3 10.1.0.6/31: [] -&gt; [&#x27;10.1.0.2@eth1&#x27;] (event) at 61.185 ms</title></line>
+<line class="fib" x1="374.6" y1="88" x2="374.6" y2="104"><title>r3 10.1.0.8/31: [] -&gt; [&#x27;10.1.0.2@eth1&#x27;] (event) at 61.252 ms</title></line>
+<line class="fib" x1="374.6" y1="88" x2="374.6" y2="104"><title>r3 10.1.0.12/31: [] -&gt; [&#x27;10.1.0.2@eth1&#x27;] (event) at 61.275 ms</title></line>
+<line class="fib" x1="374.6" y1="88" x2="374.6" y2="104"><title>r3 10.10.4.0/24: [] -&gt; [&#x27;10.1.0.2@eth1&#x27;] (event) at 61.289 ms</title></line>
+<line class="fib" x1="374.7" y1="144" x2="374.7" y2="160"><title>r5 10.1.0.4/31: [&#x27;10.1.0.6@eth1&#x27;] -&gt; [] (event) at 61.839 ms</title></line>
+<line class="fib" x1="374.7" y1="116" x2="374.7" y2="132"><title>r4 10.0.0.2/32: [] -&gt; [&#x27;10.1.0.12@eth3&#x27;] (event) at 61.952 ms</title></line>
+<line class="fib" x1="374.8" y1="144" x2="374.8" y2="160"><title>r5 10.0.0.2/32: [&#x27;10.1.0.14@eth3&#x27;, &#x27;10.1.0.6@eth1&#x27;, &#x27;10.1.0.9@eth2&#x27;] -&gt; [&#x27;10.1.0.14@eth3&#x27;, &#x27;10.1.0.9@eth2&#x27;] (event) at 62.118 ms</title></line>
+<line class="fib" x1="374.8" y1="116" x2="374.8" y2="132"><title>r4 10.0.0.3/32: [] -&gt; [&#x27;10.1.0.12@eth3&#x27;] (event) at 62.134 ms</title></line>
+<line class="fib" x1="374.8" y1="172" x2="374.8" y2="188"><title>r6 10.1.0.4/31: [&#x27;10.1.0.8@eth1&#x27;] -&gt; [] (event) at 62.136 ms</title></line>
+<line class="fib" x1="374.8" y1="116" x2="374.8" y2="132"><title>r4 10.1.0.0/31: [] -&gt; [&#x27;10.1.0.12@eth3&#x27;] (event) at 62.176 ms</title></line>
+<line class="fib" x1="374.8" y1="144" x2="374.8" y2="160"><title>r5 10.0.0.3/32: [&#x27;10.1.0.6@eth1&#x27;] -&gt; [&#x27;10.1.0.14@eth3&#x27;, &#x27;10.1.0.9@eth2&#x27;] (event) at 62.176 ms</title></line>
+<line class="fib" x1="374.8" y1="116" x2="374.8" y2="132"><title>r4 10.1.0.2/31: [] -&gt; [&#x27;10.1.0.12@eth3&#x27;] (event) at 62.192 ms</title></line>
+<line class="fib" x1="374.8" y1="144" x2="374.8" y2="160"><title>r5 10.1.0.2/31: [&#x27;10.1.0.6@eth1&#x27;] -&gt; [&#x27;10.1.0.14@eth3&#x27;, &#x27;10.1.0.9@eth2&#x27;] (event) at 62.202 ms</title></line>
+<line class="fib" x1="374.8" y1="32" x2="374.8" y2="48"><title>r1 10.1.0.4/31: [&#x27;10.1.0.1@eth1&#x27;] -&gt; [] (event) at 62.214 ms</title></line>
+<line class="fib" x1="374.8" y1="172" x2="374.8" y2="188"><title>r6 10.0.0.3/32: [&#x27;10.1.0.11@eth2&#x27;, &#x27;10.1.0.8@eth1&#x27;] -&gt; [&#x27;10.1.0.11@eth2&#x27;] (event) at 62.214 ms</title></line>
+<line class="fib" x1="374.8" y1="144" x2="374.8" y2="160"><title>r5 10.10.3.0/24: [&#x27;10.1.0.6@eth1&#x27;] -&gt; [&#x27;10.1.0.14@eth3&#x27;, &#x27;10.1.0.9@eth2&#x27;] (event) at 62.216 ms</title></line>
+<line class="fib" x1="374.8" y1="172" x2="374.8" y2="188"><title>r6 10.10.3.0/24: [&#x27;10.1.0.11@eth2&#x27;, &#x27;10.1.0.8@eth1&#x27;] -&gt; [&#x27;10.1.0.11@eth2&#x27;] (event) at 62.242 ms</title></line>
+<line class="fib" x1="374.8" y1="116" x2="374.8" y2="132"><title>r4 10.10.3.0/24: [] -&gt; [&#x27;10.1.0.12@eth3&#x27;] (event) at 62.263 ms</title></line>
+<line class="fib" x1="374.8" y1="60" x2="374.8" y2="76"><title>r2 10.1.0.4/31: [&#x27;10.1.0.3@eth2&#x27;] -&gt; [] (event) at 62.368 ms</title></line>
+<line class="fib" x1="374.8" y1="60" x2="374.8" y2="76"><title>r2 10.0.0.4/32: [&#x27;10.1.0.3@eth2&#x27;] -&gt; [&#x27;10.1.0.0@eth1&#x27;] (event) at 62.549 ms</title></line>
+<line class="fib" x1="374.8" y1="60" x2="374.8" y2="76"><title>r2 10.0.0.5/32: [&#x27;10.1.0.0@eth1&#x27;, &#x27;10.1.0.15@eth3&#x27;, &#x27;10.1.0.3@eth2&#x27;] -&gt; [&#x27;10.1.0.0@eth1&#x27;, &#x27;10.1.0.15@eth3&#x27;] (event) at 62.591 ms</title></line>
+<line class="fib" x1="374.8" y1="60" x2="374.8" y2="76"><title>r2 10.1.0.6/31: [&#x27;10.1.0.3@eth2&#x27;] -&gt; [&#x27;10.1.0.0@eth1&#x27;, &#x27;10.1.0.15@eth3&#x27;] (event) at 62.638 ms</title></line>
+<line class="fib" x1="374.8" y1="60" x2="374.8" y2="76"><title>r2 10.10.4.0/24: [&#x27;10.1.0.3@eth2&#x27;] -&gt; [&#x27;10.1.0.0@eth1&#x27;] (event) at 62.666 ms</title></line>
+<circle class="lost other" cx="366.2" cy="124" r="2.5" fill="#73b"><title>h4&gt;h3:40000 seq 1004 at -0.179 ms: observed other:NOT_SPECIFIED, predicted delivered</title></circle>
+<circle class="lost blackhole" cx="366.2" cy="96" r="2.5" fill="#d14"><title>h3&gt;h4:40000 seq 1004 at -0.088 ms: observed blackhole, predicted delivered</title></circle>
+<circle class="lost blackhole" cx="366.4" cy="124" r="2.5" fill="#d14"><title>h4&gt;h3:40001 seq 1005 at 1.311 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="366.4" cy="96" r="2.5" fill="#d14"><title>h3&gt;h4:40001 seq 1005 at 1.596 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="366.7" cy="124" r="2.5" fill="#d14"><title>h4&gt;h3:40002 seq 1006 at 3.568 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="366.7" cy="96" r="2.5" fill="#d14"><title>h3&gt;h4:40002 seq 1006 at 3.839 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="367.0" cy="124" r="2.5" fill="#d14"><title>h4&gt;h3:40003 seq 1007 at 5.934 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="367.0" cy="96" r="2.5" fill="#d14"><title>h3&gt;h4:40003 seq 1007 at 6.041 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="367.2" cy="124" r="2.5" fill="#d14"><title>h4&gt;h3:40000 seq 1008 at 7.193 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="367.2" cy="96" r="2.5" fill="#d14"><title>h3&gt;h4:40000 seq 1008 at 7.210 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="367.5" cy="124" r="2.5" fill="#d14"><title>h4&gt;h3:40001 seq 1009 at 9.415 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="367.5" cy="96" r="2.5" fill="#d14"><title>h3&gt;h4:40001 seq 1009 at 9.570 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="367.8" cy="124" r="2.5" fill="#d14"><title>h4&gt;h3:40002 seq 1010 at 11.850 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="367.9" cy="96" r="2.5" fill="#d14"><title>h3&gt;h4:40002 seq 1010 at 12.099 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="368.0" cy="124" r="2.5" fill="#d14"><title>h4&gt;h3:40003 seq 1011 at 13.368 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="368.1" cy="96" r="2.5" fill="#d14"><title>h3&gt;h4:40003 seq 1011 at 13.407 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="368.3" cy="124" r="2.5" fill="#d14"><title>h4&gt;h3:40000 seq 1012 at 15.540 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="368.4" cy="96" r="2.5" fill="#d14"><title>h3&gt;h4:40000 seq 1012 at 15.617 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="368.7" cy="96" r="2.5" fill="#d14"><title>h3&gt;h4:40001 seq 1013 at 17.910 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="368.7" cy="124" r="2.5" fill="#d14"><title>h4&gt;h3:40001 seq 1013 at 17.955 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="369.0" cy="124" r="2.5" fill="#d14"><title>h4&gt;h3:40002 seq 1014 at 20.196 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="369.0" cy="96" r="2.5" fill="#d14"><title>h3&gt;h4:40002 seq 1014 at 20.222 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="369.2" cy="96" r="2.5" fill="#d14"><title>h3&gt;h4:40003 seq 1015 at 21.427 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="369.2" cy="124" r="2.5" fill="#d14"><title>h4&gt;h3:40003 seq 1015 at 21.510 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="369.5" cy="124" r="2.5" fill="#d14"><title>h4&gt;h3:40000 seq 1016 at 23.713 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="369.5" cy="96" r="2.5" fill="#d14"><title>h3&gt;h4:40000 seq 1016 at 23.832 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="369.8" cy="124" r="2.5" fill="#d14"><title>h4&gt;h3:40001 seq 1017 at 25.911 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="369.8" cy="96" r="2.5" fill="#d14"><title>h3&gt;h4:40001 seq 1017 at 26.138 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="370.0" cy="124" r="2.5" fill="#d14"><title>h4&gt;h3:40002 seq 1018 at 27.297 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="370.0" cy="96" r="2.5" fill="#d14"><title>h3&gt;h4:40002 seq 1018 at 27.421 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="370.3" cy="124" r="2.5" fill="#d14"><title>h4&gt;h3:40003 seq 1019 at 29.696 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="370.3" cy="96" r="2.5" fill="#d14"><title>h3&gt;h4:40003 seq 1019 at 29.854 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="370.6" cy="124" r="2.5" fill="#d14"><title>h4&gt;h3:40000 seq 1020 at 31.957 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="370.6" cy="96" r="2.5" fill="#d14"><title>h3&gt;h4:40000 seq 1020 at 32.066 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="370.8" cy="96" r="2.5" fill="#d14"><title>h3&gt;h4:40001 seq 1021 at 33.193 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="370.8" cy="124" r="2.5" fill="#d14"><title>h4&gt;h3:40001 seq 1021 at 33.338 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="371.1" cy="96" r="2.5" fill="#d14"><title>h3&gt;h4:40002 seq 1022 at 35.580 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="371.1" cy="124" r="2.5" fill="#d14"><title>h4&gt;h3:40002 seq 1022 at 35.581 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="371.4" cy="124" r="2.5" fill="#d14"><title>h4&gt;h3:40003 seq 1023 at 37.837 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="371.4" cy="96" r="2.5" fill="#d14"><title>h3&gt;h4:40003 seq 1023 at 38.007 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="371.7" cy="124" r="2.5" fill="#d14"><title>h4&gt;h3:40000 seq 1024 at 40.183 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="371.7" cy="96" r="2.5" fill="#d14"><title>h3&gt;h4:40000 seq 1024 at 40.240 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="371.9" cy="124" r="2.5" fill="#d14"><title>h4&gt;h3:40001 seq 1025 at 41.374 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="371.9" cy="96" r="2.5" fill="#d14"><title>h3&gt;h4:40001 seq 1025 at 41.376 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="372.2" cy="96" r="2.5" fill="#d14"><title>h3&gt;h4:40002 seq 1026 at 43.591 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="372.2" cy="124" r="2.5" fill="#d14"><title>h4&gt;h3:40002 seq 1026 at 43.709 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="372.5" cy="96" r="2.5" fill="#d14"><title>h3&gt;h4:40003 seq 1027 at 46.031 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="372.6" cy="124" r="2.5" fill="#d14"><title>h4&gt;h3:40003 seq 1027 at 46.171 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="372.7" cy="124" r="2.5" fill="#d14"><title>h4&gt;h3:40000 seq 1028 at 47.369 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="372.7" cy="96" r="2.5" fill="#d14"><title>h3&gt;h4:40000 seq 1028 at 47.405 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="373.0" cy="124" r="2.5" fill="#d14"><title>h4&gt;h3:40001 seq 1029 at 49.549 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="373.0" cy="96" r="2.5" fill="#d14"><title>h3&gt;h4:40001 seq 1029 at 49.580 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="373.3" cy="124" r="2.5" fill="#d14"><title>h4&gt;h3:40002 seq 1030 at 51.881 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="373.4" cy="96" r="2.5" fill="#d14"><title>h3&gt;h4:40002 seq 1030 at 51.928 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="373.6" cy="124" r="2.5" fill="#d14"><title>h4&gt;h3:40003 seq 1031 at 54.099 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="373.7" cy="96" r="2.5" fill="#d14"><title>h3&gt;h4:40003 seq 1031 at 54.182 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="373.8" cy="124" r="2.5" fill="#d14"><title>h4&gt;h3:40000 seq 1032 at 55.225 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="373.8" cy="96" r="2.5" fill="#d14"><title>h3&gt;h4:40000 seq 1032 at 55.438 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="374.1" cy="124" r="2.5" fill="#d14"><title>h4&gt;h3:40001 seq 1033 at 57.548 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="374.1" cy="96" r="2.5" fill="#d14"><title>h3&gt;h4:40001 seq 1033 at 57.633 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="374.4" cy="124" r="2.5" fill="#d14"><title>h4&gt;h3:40002 seq 1034 at 59.899 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="374.5" cy="96" r="2.5" fill="#d14"><title>h3&gt;h4:40002 seq 1034 at 60.081 ms: observed blackhole, predicted blackhole</title></circle>
+<circle class="lost microloop" cx="374.6" cy="68" r="2.5" fill="#e80"><title>h3&gt;h4:40003 seq 1035 at 61.204 ms: observed loop, predicted blackhole</title></circle>
+<circle class="lost blackhole" cx="374.6" cy="124" r="2.5" fill="#d14"><title>h4&gt;h3:40003 seq 1035 at 61.220 ms: observed blackhole, predicted blackhole</title></circle>
+<line class="event" x1="366.2" y1="20" x2="366.2" y2="302"/>
+<text x="370.2" y="16" class="lbl">carrier_down</text>
+<text x="91.2" y="320" class="tick">-2000 ms</text><line x1="91.2" y1="302" x2="91.2" y2="308" class="row"/>
+<text x="160.0" y="320" class="tick">-1500 ms</text><line x1="160.0" y1="302" x2="160.0" y2="308" class="row"/>
+<text x="228.7" y="320" class="tick">-1000 ms</text><line x1="228.7" y1="302" x2="228.7" y2="308" class="row"/>
+<text x="297.5" y="320" class="tick">-500 ms</text><line x1="297.5" y1="302" x2="297.5" y2="308" class="row"/>
+<text x="366.2" y="320" class="tick">0 ms</text><line x1="366.2" y1="302" x2="366.2" y2="308" class="row"/>
+<text x="435.0" y="320" class="tick">500 ms</text><line x1="435.0" y1="302" x2="435.0" y2="308" class="row"/>
+<text x="503.7" y="320" class="tick">1000 ms</text><line x1="503.7" y1="302" x2="503.7" y2="308" class="row"/>
+<text x="572.5" y="320" class="tick">1500 ms</text><line x1="572.5" y1="302" x2="572.5" y2="308" class="row"/>
+<text x="641.2" y="320" class="tick">2000 ms</text><line x1="641.2" y1="302" x2="641.2" y2="308" class="row"/>
+<text x="710.0" y="320" class="tick">2500 ms</text><line x1="710.0" y1="302" x2="710.0" y2="308" class="row"/>
+<text x="778.7" y="320" class="tick">3000 ms</text><line x1="778.7" y1="302" x2="778.7" y2="308" class="row"/>
+<text x="847.5" y="320" class="tick">3500 ms</text><line x1="847.5" y1="302" x2="847.5" y2="308" class="row"/>
+<text x="916.2" y="320" class="tick">4000 ms</text><line x1="916.2" y1="302" x2="916.2" y2="308" class="row"/>
+<text x="985.0" y="320" class="tick">4500 ms</text><line x1="985.0" y1="302" x2="985.0" y2="308" class="row"/>
+<text x="1053.7" y="320" class="tick">5000 ms</text><line x1="1053.7" y1="302" x2="1053.7" y2="308" class="row"/>
+<text x="1122.5" y="320" class="tick">5500 ms</text><line x1="1122.5" y1="302" x2="1122.5" y2="308" class="row"/></svg></div>
+<script>
+document.querySelectorAll('input[data-c]').forEach(cb => cb.addEventListener('change', () =>
+  document.querySelectorAll('circle.' + cb.dataset.c).forEach(e => e.style.display = cb.checked ? '' : 'none')));
+document.querySelectorAll('input[data-k]').forEach(cb => cb.addEventListener('change', () =>
+  document.querySelectorAll('.' + cb.dataset.k).forEach(e => e.style.display = cb.checked ? '' : 'none')));
+</script>
+</body></html>

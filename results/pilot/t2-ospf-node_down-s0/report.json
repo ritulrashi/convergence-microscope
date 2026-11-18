@@ -1,0 +1,81 @@
+{
+  "cause_source": "observed (tracer)",
+  "convergence_last_fib_change_ms": 2319.572,
+  "convergence_last_loss_ms": 5991.144,
+  "fib_changes_after_event": 27,
+  "flows_with_loss": 8,
+  "invalid_reasons": [],
+  "loss_ongoing_at_end": true,
+  "loss_window_per_flow": {
+    "h1>h3:40000": {
+      "first_lost_ms": 2320.627,
+      "last_lost_ms": 5984.329,
+      "lost": 459,
+      "window_ms": 3663.702
+    },
+    "h1>h3:40001": {
+      "first_lost_ms": 2323.116,
+      "last_lost_ms": 5986.632,
+      "lost": 459,
+      "window_ms": 3663.516
+    },
+    "h1>h3:40002": {
+      "first_lost_ms": 2324.306,
+      "last_lost_ms": 5988.868,
+      "lost": 459,
+      "window_ms": 3664.562
+    },
+    "h1>h3:40003": {
+      "first_lost_ms": 2326.792,
+      "last_lost_ms": 5991.144,
+      "lost": 459,
+      "window_ms": 3664.352
+    },
+    "h4>h3:40000": {
+      "first_lost_ms": 2320.627,
+      "last_lost_ms": 5984.48,
+      "lost": 459,
+      "window_ms": 3663.853
+    },
+    "h4>h3:40001": {
+      "first_lost_ms": 2322.945,
+      "last_lost_ms": 5986.678,
+      "lost": 459,
+      "window_ms": 3663.733
+    },
+    "h4>h3:40002": {
+      "first_lost_ms": 2324.287,
+      "last_lost_ms": 5988.924,
+      "lost": 459,
+      "window_ms": 3664.637
+    },
+    "h4>h3:40003": {
+      "first_lost_ms": 2326.667,
+      "last_lost_ms": 5991.137,
+      "lost": 459,
+      "window_ms": 3664.47
+    }
+  },
+  "lost": 3672,
+  "lost_by_cause": {
+    "blackhole": 3672,
+    "microloop": 0,
+    "other": 0,
+    "unknown": 0
+  },
+  "max_flow_window_ms": 3664.637,
+  "microloops": [],
+  "microloops_in_fib": 0,
+  "observed_loop_packets": 0,
+  "probes": 24000,
+  "replay": {
+    "fate_agreement": 1,
+    "fate_agreement_fib": 1,
+    "fate_agreement_fib_n": 24000,
+    "fate_agreement_n": 24000,
+    "mismatch_classes": {},
+    "path_consistency": 1
+  },
+  "run_id": "t2-ospf-node_down-s0",
+  "valid": true
+}

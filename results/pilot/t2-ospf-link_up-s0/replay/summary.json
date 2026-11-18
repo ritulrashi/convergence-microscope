@@ -1,0 +1,20 @@
+{
+  "fate_agreement": 1,
+  "fate_agreement_fib": 1,
+  "fate_agreement_fib_n": 24000,
+  "fate_agreement_n": 24000,
+  "fib_loops": 1,
+  "lost_by_cause": {},
+  "mismatch_classes": {},
+  "observed": {
+    "delivered": 24000
+  },
+  "path_consistency": 0.9999839093776147,
+  "path_transitions": 62148,
+  "per_hop_latency_ns": 4499,
+  "predicted": {
+    "delivered": 24000
+  },
+  "probes": 24000,
+  "tier": "A"
+}

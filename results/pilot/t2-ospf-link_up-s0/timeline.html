@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Run timeline</title>
+<style>
+:root { --bg:#fff; --fg:#111; --muted:#888; --grid:#e4e4e4; --fib:#2a6fdb; --loop:rgba(232,128,0,.25); --event:#000; }
+@media (prefers-color-scheme: dark) { :root { --bg:#111; --fg:#eee; --muted:#999; --grid:#2c2c2c; --fib:#6aa0ff; --loop:rgba(255,160,40,.3); --event:#fff; } }
+body { background:var(--bg); color:var(--fg); font:14px system-ui,sans-serif; margin:16px; }
+.lbl { fill:var(--fg); font-size:12px; } .tick { fill:var(--muted); font-size:11px; }
+.row { stroke:var(--grid); } .fib { stroke:var(--fib); stroke-width:1.5; }
+.loop { fill:var(--loop); } .event { stroke:var(--event); stroke-dasharray:4 3; }
+.wrap { overflow-x:auto; } label { margin-right:12px; }
+</style></head><body>
+<h1 style="font-size:18px">t2-ospf-link_up-s0</h1>
+<p>mesh ospf, link_up at r3:eth2-r4, seed 0. Lost 0 of 24000: blackhole 0, microloop 0, other 0, unknown 0. Cause source: observed (tracer). Valid: True.</p>
+<p><label><input type="checkbox" checked data-c="blackhole"> <span style="color:#d14">●</span> blackhole</label> <label><input type="checkbox" checked data-c="microloop"> <span style="color:#e80">●</span> microloop</label> <label><input type="checkbox" checked data-c="other"> <span style="color:#73b">●</span> other</label> <label><input type="checkbox" checked data-c="unknown"> <span style="color:#777">●</span> unknown</label> <label><input type="checkbox" checked data-k="fib"> FIB changes</label>
+<label><input type="checkbox" checked data-k="loop"> microloops (from FIB)</label></p>
+<div class="wrap"><svg width="1210" height="332" role="img" aria-label="timeline"><text x="8" y="44" class="lbl">r1</text>
+<line x1="90" y1="40" x2="1190" y2="40" class="row"/>
+<text x="8" y="72" class="lbl">r2</text>
+<line x1="90" y1="68" x2="1190" y2="68" class="row"/>
+<text x="8" y="100" class="lbl">r3</text>
+<line x1="90" y1="96" x2="1190" y2="96" class="row"/>
+<text x="8" y="128" class="lbl">r4</text>
+<line x1="90" y1="124" x2="1190" y2="124" class="row"/>
+<text x="8" y="156" class="lbl">r5</text>
+<line x1="90" y1="152" x2="1190" y2="152" class="row"/>
+<text x="8" y="184" class="lbl">r6</text>
+<line x1="90" y1="180" x2="1190" y2="180" class="row"/>
+<text x="8" y="212" class="lbl">h1</text>
+<line x1="90" y1="208" x2="1190" y2="208" class="row"/>
+<text x="8" y="240" class="lbl">h3</text>
+<line x1="90" y1="236" x2="1190" y2="236" class="row"/>
+<text x="8" y="268" class="lbl">h4</text>
+<line x1="90" y1="264" x2="1190" y2="264" class="row"/>
+<rect class="loop" x="512.7" y="143" width="2.0" height="18"><title>loop to 10.10.3.10: r5, r6, 0.11 ms</title></rect>
+<rect class="loop" x="512.7" y="171" width="2.0" height="18"><title>loop to 10.10.3.10: r5, r6, 0.11 ms</title></rect>
+<line class="fib" x1="366.3" y1="88" x2="366.3" y2="104"><title>r3 10.1.0.4/31: [] -&gt; [&#x27;direct@eth2&#x27;] (event) at 0.457 ms</title></line>
+<line class="fib" x1="366.3" y1="88" x2="366.3" y2="104"><title>r3 10.0.0.6/32: [&#x27;10.1.0.2@eth1&#x27;] -&gt; [&#x27;10.1.0.2@eth1&#x27;, &#x27;10.1.0.5@eth2&#x27;] (event) at 0.800 ms</title></line>
+<line class="fib" x1="374.7" y1="144" x2="374.7" y2="160"><title>r5 10.1.0.4/31: [] -&gt; [&#x27;10.1.0.6@eth1&#x27;] (event) at 61.961 ms</title></line>
+<line class="fib" x1="374.8" y1="60" x2="374.8" y2="76"><title>r2 10.1.0.4/31: [] -&gt; [&#x27;10.1.0.3@eth2&#x27;] (event) at 62.070 ms</title></line>
+<line class="fib" x1="374.8" y1="32" x2="374.8" y2="48"><title>r1 10.1.0.4/31: [] -&gt; [&#x27;10.1.0.1@eth1&#x27;] (event) at 62.155 ms</title></line>
+<line class="fib" x1="374.9" y1="172" x2="374.9" y2="188"><title>r6 10.1.0.4/31: [] -&gt; [&#x27;10.1.0.8@eth1&#x27;] (event) at 62.839 ms</title></line>
+<line class="fib" x1="512.6" y1="116" x2="512.6" y2="132"><title>r4 10.0.0.2/32: [&#x27;10.1.0.12@eth3&#x27;] -&gt; [&#x27;10.1.0.4@eth1&#x27;] (event) at 1064.776 ms</title></line>
+<line class="fib" x1="512.6" y1="172" x2="512.6" y2="188"><title>r6 10.0.0.3/32: [&#x27;10.1.0.11@eth2&#x27;] -&gt; [&#x27;10.1.0.11@eth2&#x27;, &#x27;10.1.0.8@eth1&#x27;] (event) at 1064.839 ms</title></line>
+<line class="fib" x1="512.6" y1="116" x2="512.6" y2="132"><title>r4 10.0.0.3/32: [&#x27;10.1.0.12@eth3&#x27;] -&gt; [&#x27;10.1.0.4@eth1&#x27;] (event) at 1064.906 ms</title></line>
+<line class="fib" x1="512.6" y1="116" x2="512.6" y2="132"><title>r4 10.1.0.0/31: [&#x27;10.1.0.12@eth3&#x27;] -&gt; [&#x27;10.1.0.4@eth1&#x27;] (event) at 1064.944 ms</title></line>
+<line class="fib" x1="512.7" y1="116" x2="512.7" y2="132"><title>r4 10.1.0.2/31: [&#x27;10.1.0.12@eth3&#x27;] -&gt; [&#x27;10.1.0.4@eth1&#x27;] (event) at 1064.962 ms</title></line>
+<line class="fib" x1="512.7" y1="116" x2="512.7" y2="132"><title>r4 10.10.3.0/24: [&#x27;10.1.0.12@eth3&#x27;] -&gt; [&#x27;10.1.0.4@eth1&#x27;] (event) at 1064.976 ms</title></line>
+<line class="fib" x1="512.7" y1="172" x2="512.7" y2="188"><title>r6 10.10.3.0/24: [&#x27;10.1.0.11@eth2&#x27;] -&gt; [&#x27;10.1.0.11@eth2&#x27;, &#x27;10.1.0.8@eth1&#x27;] (event) at 1065.013 ms</title></line>
+<line class="fib" x1="512.7" y1="144" x2="512.7" y2="160"><title>r5 10.0.0.2/32: [&#x27;10.1.0.14@eth3&#x27;, &#x27;10.1.0.9@eth2&#x27;] -&gt; [&#x27;10.1.0.14@eth3&#x27;, &#x27;10.1.0.6@eth1&#x27;, &#x27;10.1.0.9@eth2&#x27;] (event) at 1065.019 ms</title></line>
+<line class="fib" x1="512.7" y1="144" x2="512.7" y2="160"><title>r5 10.0.0.3/32: [&#x27;10.1.0.14@eth3&#x27;, &#x27;10.1.0.9@eth2&#x27;] -&gt; [&#x27;10.1.0.6@eth1&#x27;] (event) at 1065.071 ms</title></line>
+<line class="fib" x1="512.7" y1="144" x2="512.7" y2="160"><title>r5 10.1.0.2/31: [&#x27;10.1.0.14@eth3&#x27;, &#x27;10.1.0.9@eth2&#x27;] -&gt; [&#x27;10.1.0.6@eth1&#x27;] (event) at 1065.098 ms</title></line>
+<line class="fib" x1="512.7" y1="144" x2="512.7" y2="160"><title>r5 10.10.3.0/24: [&#x27;10.1.0.14@eth3&#x27;, &#x27;10.1.0.9@eth2&#x27;] -&gt; [&#x27;10.1.0.6@eth1&#x27;] (event) at 1065.118 ms</title></line>
+<line class="fib" x1="512.7" y1="88" x2="512.7" y2="104"><title>r3 10.0.0.4/32: [&#x27;10.1.0.2@eth1&#x27;] -&gt; [&#x27;10.1.0.5@eth2&#x27;] (event) at 1065.152 ms</title></line>
+<line class="fib" x1="512.7" y1="88" x2="512.7" y2="104"><title>r3 10.0.0.5/32: [&#x27;10.1.0.2@eth1&#x27;] -&gt; [&#x27;10.1.0.5@eth2&#x27;] (event) at 1065.191 ms</title></line>
+<line class="fib" x1="512.7" y1="88" x2="512.7" y2="104"><title>r3 10.1.0.6/31: [&#x27;10.1.0.2@eth1&#x27;] -&gt; [&#x27;10.1.0.5@eth2&#x27;] (event) at 1065.208 ms</title></line>
+<line class="fib" x1="512.7" y1="88" x2="512.7" y2="104"><title>r3 10.1.0.8/31: [&#x27;10.1.0.2@eth1&#x27;] -&gt; [&#x27;10.1.0.5@eth2&#x27;] (event) at 1065.224 ms</title></line>
+<line class="fib" x1="512.7" y1="88" x2="512.7" y2="104"><title>r3 10.1.0.12/31: [&#x27;10.1.0.2@eth1&#x27;] -&gt; [&#x27;10.1.0.5@eth2&#x27;] (event) at 1065.239 ms</title></line>
+<line class="fib" x1="512.7" y1="88" x2="512.7" y2="104"><title>r3 10.10.4.0/24: [&#x27;10.1.0.2@eth1&#x27;] -&gt; [&#x27;10.1.0.5@eth2&#x27;] (event) at 1065.258 ms</title></line>
+<line class="fib" x1="512.7" y1="60" x2="512.7" y2="76"><title>r2 10.0.0.4/32: [&#x27;10.1.0.0@eth1&#x27;] -&gt; [&#x27;10.1.0.3@eth2&#x27;] (event) at 1065.334 ms</title></line>
+<line class="fib" x1="512.7" y1="60" x2="512.7" y2="76"><title>r2 10.0.0.5/32: [&#x27;10.1.0.0@eth1&#x27;, &#x27;10.1.0.15@eth3&#x27;] -&gt; [&#x27;10.1.0.0@eth1&#x27;, &#x27;10.1.0.15@eth3&#x27;, &#x27;10.1.0.3@eth2&#x27;] (event) at 1065.474 ms</title></line>
+<line class="fib" x1="512.7" y1="60" x2="512.7" y2="76"><title>r2 10.1.0.6/31: [&#x27;10.1.0.0@eth1&#x27;, &#x27;10.1.0.15@eth3&#x27;] -&gt; [&#x27;10.1.0.3@eth2&#x27;] (event) at 1065.592 ms</title></line>
+<line class="fib" x1="512.7" y1="60" x2="512.7" y2="76"><title>r2 10.10.4.0/24: [&#x27;10.1.0.0@eth1&#x27;] -&gt; [&#x27;10.1.0.3@eth2&#x27;] (event) at 1065.612 ms</title></line>
+<line class="event" x1="366.2" y1="20" x2="366.2" y2="302"/>
+<text x="370.2" y="16" class="lbl">link_up</text>
+<text x="91.2" y="320" class="tick">-2000 ms</text><line x1="91.2" y1="302" x2="91.2" y2="308" class="row"/>
+<text x="160.0" y="320" class="tick">-1500 ms</text><line x1="160.0" y1="302" x2="160.0" y2="308" class="row"/>
+<text x="228.7" y="320" class="tick">-1000 ms</text><line x1="228.7" y1="302" x2="228.7" y2="308" class="row"/>
+<text x="297.5" y="320" class="tick">-500 ms</text><line x1="297.5" y1="302" x2="297.5" y2="308" class="row"/>
+<text x="366.2" y="320" class="tick">0 ms</text><line x1="366.2" y1="302" x2="366.2" y2="308" class="row"/>
+<text x="435.0" y="320" class="tick">500 ms</text><line x1="435.0" y1="302" x2="435.0" y2="308" class="row"/>
+<text x="503.7" y="320" class="tick">1000 ms</text><line x1="503.7" y1="302" x2="503.7" y2="308" class="row"/>
+<text x="572.5" y="320" class="tick">1500 ms</text><line x1="572.5" y1="302" x2="572.5" y2="308" class="row"/>
+<text x="641.2" y="320" class="tick">2000 ms</text><line x1="641.2" y1="302" x2="641.2" y2="308" class="row"/>
+<text x="710.0" y="320" class="tick">2500 ms</text><line x1="710.0" y1="302" x2="710.0" y2="308" class="row"/>
+<text x="778.7" y="320" class="tick">3000 ms</text><line x1="778.7" y1="302" x2="778.7" y2="308" class="row"/>
+<text x="847.5" y="320" class="tick">3500 ms</text><line x1="847.5" y1="302" x2="847.5" y2="308" class="row"/>
+<text x="916.2" y="320" class="tick">4000 ms</text><line x1="916.2" y1="302" x2="916.2" y2="308" class="row"/>
+<text x="985.0" y="320" class="tick">4500 ms</text><line x1="985.0" y1="302" x2="985.0" y2="308" class="row"/>
+<text x="1053.7" y="320" class="tick">5000 ms</text><line x1="1053.7" y1="302" x2="1053.7" y2="308" class="row"/>
+<text x="1122.5" y="320" class="tick">5500 ms</text><line x1="1122.5" y1="302" x2="1122.5" y2="308" class="row"/></svg></div>
+<script>
+document.querySelectorAll('input[data-c]').forEach(cb => cb.addEventListener('change', () =>
+  document.querySelectorAll('circle.' + cb.dataset.c).forEach(e => e.style.display = cb.checked ? '' : 'none')));
+document.querySelectorAll('input[data-k]').forEach(cb => cb.addEventListener('change', () =>
+  document.querySelectorAll('.' + cb.dataset.k).forEach(e => e.style.display = cb.checked ? '' : 'none')));
+</script>
+</body></html>

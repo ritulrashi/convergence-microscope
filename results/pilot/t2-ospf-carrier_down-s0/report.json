@@ -1,0 +1,103 @@
+{
+  "cause_source": "observed (tracer)",
+  "convergence_last_fib_change_ms": 62.666,
+  "convergence_last_loss_ms": 61.22,
+  "fib_changes_after_event": 38,
+  "flows_with_loss": 8,
+  "invalid_reasons": [],
+  "loss_ongoing_at_end": false,
+  "loss_window_per_flow": {
+    "h3>h4:40000": {
+      "first_lost_ms": -0.088,
+      "last_lost_ms": 55.438,
+      "lost": 8,
+      "window_ms": 55.526
+    },
+    "h3>h4:40001": {
+      "first_lost_ms": 1.596,
+      "last_lost_ms": 57.633,
+      "lost": 8,
+      "window_ms": 56.037
+    },
+    "h3>h4:40002": {
+      "first_lost_ms": 3.839,
+      "last_lost_ms": 60.081,
+      "lost": 8,
+      "window_ms": 56.243
+    },
+    "h3>h4:40003": {
+      "first_lost_ms": 6.041,
+      "last_lost_ms": 61.204,
+      "lost": 8,
+      "window_ms": 55.164
+    },
+    "h4>h3:40000": {
+      "first_lost_ms": -0.179,
+      "last_lost_ms": 55.225,
+      "lost": 8,
+      "window_ms": 55.403
+    },
+    "h4>h3:40001": {
+      "first_lost_ms": 1.311,
+      "last_lost_ms": 57.548,
+      "lost": 8,
+      "window_ms": 56.238
+    },
+    "h4>h3:40002": {
+      "first_lost_ms": 3.568,
+      "last_lost_ms": 59.899,
+      "lost": 8,
+      "window_ms": 56.331
+    },
+    "h4>h3:40003": {
+      "first_lost_ms": 5.934,
+      "last_lost_ms": 61.22,
+      "lost": 8,
+      "window_ms": 55.287
+    }
+  },
+  "lost": 64,
+  "lost_by_cause": {
+    "blackhole": 62,
+    "microloop": 1,
+    "other": 1,
+    "unknown": 0
+  },
+  "max_flow_window_ms": 56.331,
+  "microloops": [
+    {
+      "dst": "10.10.4.10",
+      "duration_ms": 1.377,
+      "routers": [
+        "r2",
+        "r3"
+      ],
+      "start_ms": 61.289
+    },
+    {
+      "dst": "10.10.3.10",
+      "duration_ms": 0.026,
+      "routers": [
+        "r5",
+        "r6"
+      ],
+      "start_ms": 62.216
+    }
+  ],
+  "microloops_in_fib": 2,
+  "observed_loop_packets": 1,
+  "probes": 24000,
+  "replay": {
+    "fate_agreement": 0.999875,
+    "fate_agreement_fib": 0.9999166631942997,
+    "fate_agreement_fib_n": 23999,
+    "fate_agreement_n": 24000,
+    "mismatch_classes": {
+      "near-fib-change": 2,
+      "observed-other": 1
+    },
+    "path_consistency": 0.9998967414553555
+  },
+  "run_id": "t2-ospf-carrier_down-s0",
+  "valid": true
+}

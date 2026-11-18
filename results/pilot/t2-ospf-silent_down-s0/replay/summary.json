@@ -1,0 +1,25 @@
+{
+  "fate_agreement": 0.94,
+  "fate_agreement_fib": 1,
+  "fate_agreement_fib_n": 22560,
+  "fate_agreement_n": 24000,
+  "fib_loops": 3,
+  "lost_by_cause": {
+    "other:QDISC_DROP": 1440
+  },
+  "mismatch_classes": {
+    "observed-other": 1440
+  },
+  "observed": {
+    "delivered": 22560,
+    "other:QDISC_DROP": 1440
+  },
+  "path_consistency": 1,
+  "path_transitions": 61116,
+  "per_hop_latency_ns": 4388,
+  "predicted": {
+    "delivered": 24000
+  },
+  "probes": 24000,
+  "tier": "A"
+}

@@ -1,0 +1,31 @@
+{
+  "fate_agreement": 0.999875,
+  "fate_agreement_fib": 0.9999166631942997,
+  "fate_agreement_fib_n": 23999,
+  "fate_agreement_n": 24000,
+  "fib_loops": 2,
+  "lost_by_cause": {
+    "blackhole": 62,
+    "loop": 1,
+    "other:NOT_SPECIFIED": 1
+  },
+  "mismatch_classes": {
+    "near-fib-change": 2,
+    "observed-other": 1
+  },
+  "observed": {
+    "blackhole": 62,
+    "delivered": 23936,
+    "loop": 1,
+    "other:NOT_SPECIFIED": 1
+  },
+  "path_consistency": 0.9998967414553555,
+  "path_transitions": 67791,
+  "per_hop_latency_ns": 4388,
+  "predicted": {
+    "blackhole": 62,
+    "delivered": 23938
+  },
+  "probes": 24000,
+  "tier": "A"
+}

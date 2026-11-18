@@ -1,0 +1,69 @@
+{
+  "cause_source": "observed (tracer)",
+  "convergence_last_fib_change_ms": 2878.578,
+  "convergence_last_loss_ms": 2877.556,
+  "fib_changes_after_event": 22,
+  "flows_with_loss": 4,
+  "invalid_reasons": [],
+  "loss_ongoing_at_end": false,
+  "loss_window_per_flow": {
+    "h3>h4:40000": {
+      "first_lost_ms": 5.725,
+      "last_lost_ms": 2877.556,
+      "lost": 360,
+      "window_ms": 2871.831
+    },
+    "h3>h4:40001": {
+      "first_lost_ms": -0.013,
+      "last_lost_ms": 2871.762,
+      "lost": 360,
+      "window_ms": 2871.775
+    },
+    "h3>h4:40002": {
+      "first_lost_ms": 2.197,
+      "last_lost_ms": 2873.96,
+      "lost": 360,
+      "window_ms": 2871.763
+    },
+    "h3>h4:40003": {
+      "first_lost_ms": 3.37,
+      "last_lost_ms": 2876.279,
+      "lost": 360,
+      "window_ms": 2872.909
+    }
+  },
+  "lost": 1440,
+  "lost_by_cause": {
+    "blackhole": 0,
+    "microloop": 0,
+    "other": 1440,
+    "unknown": 0
+  },
+  "max_flow_window_ms": 2872.909,
+  "microloops": [
+    {
+      "dst": "10.10.4.10",
+      "duration_ms": 0.208,
+      "routers": [
+        "r2",
+        "r3"
+      ],
+      "start_ms": 2878.007
+    }
+  ],
+  "microloops_in_fib": 1,
+  "observed_loop_packets": 0,
+  "probes": 24000,
+  "replay": {
+    "fate_agreement": 0.94,
+    "fate_agreement_fib": 1,
+    "fate_agreement_fib_n": 22560,
+    "fate_agreement_n": 24000,
+    "mismatch_classes": {
+      "observed-other": 1440
+    },
+    "path_consistency": 1
+  },
+  "run_id": "t2-ospf-silent_down-s0",
+  "valid": true
+}

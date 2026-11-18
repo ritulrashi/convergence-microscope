@@ -1,0 +1,24 @@
+{
+  "fate_agreement": 1,
+  "fate_agreement_fib": 1,
+  "fate_agreement_fib_n": 24000,
+  "fate_agreement_n": 24000,
+  "fib_loops": 0,
+  "lost_by_cause": {
+    "blackhole": 3672
+  },
+  "mismatch_classes": {},
+  "observed": {
+    "blackhole": 3672,
+    "delivered": 20328
+  },
+  "path_consistency": 1,
+  "path_transitions": 47022,
+  "per_hop_latency_ns": 4969,
+  "predicted": {
+    "blackhole": 3672,
+    "delivered": 20328
+  },
+  "probes": 24000,
+  "tier": "A"
+}

@@ -118,3 +118,16 @@ Each ADR: context, decision, alternatives, consequence.
 - **Decision:** the tracer resolves the `kfree_skb` call site to a function name through `/proc/kallsyms`, and calibration writes classes as `code@function` pairs (`results/calibration/drop_reasons.json`). On kernel 6.8: blackhole = `2@ip_error`, `70@ip_error` (`IP_INNOROUTES`); TTL expiry = `11@ip_forward` (`IP_INHDR`).
 - **Alternatives:** raw addresses (change every boot with KASLR); reason codes only (misclassifies).
 - **Consequence:** any other (code, function) pair is reported as `other:<reason>`, never guessed.
+
+## ADR-018: Experiments probe at 500 pps per host pair
+
+- **Context:** SPEC 5.2 defaults to 1,000 pps per flow. `results/p5/rate_check.jsonl` mirrors a real run (recorders on every router, tracer, per-packet logging, T1 all 12 pairs, 8 s, 4 cores) and found 8 of 10 runs valid at 1,000 pps (max send lateness up to 5.3 ms against the 5 ms tolerance), 10 of 10 at 500 pps (max 4.5 ms) and 10 of 10 at 250 pps (max 2.5 ms).
+- **Decision:** experiments (E2 to E5) run at 500 pps per pair: 2 ms resolution per host pair, 8 ms per (pair, source port) flow. The 5 ms tolerance is unchanged and invalid runs are still kept and reported.
+- **Alternatives:** 1,000 pps with about 20% invalid runs; 250 pps (more margin, half the time resolution); a looser tolerance (hides real gaps).
+- **Consequence:** loss windows shorter than about 2 ms per pair can be missed. Microloops are still visible because a looping packet is observed hop by hop by the tracer.
+
+## ADR-019: Event time is the kernel-observed change, not the command start
+
+- **Context:** the pilot showed the first lost packet 254 ms after the recorded event time: firing `ip link set down` through `docker inspect`, `sudo` and `nsenter` took 256 ms.
+- **Decision:** container PIDs are cached and `node_down` PIDs are resolved before the run, so firing takes about 9 ms. The event time is the recorder's link event for `carrier_down`/`link_up`, the tracer's first drop at the failed interface for `silent_down`, and the end of the `kill` command for `node_down`. `run.json` records which (`event_time_source`).
+- **Consequence:** convergence times start when the failure took effect.
