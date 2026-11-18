@@ -53,7 +53,7 @@ def do_run(
     seed: int,
     out_root: Path,
     location: str | None = None,
-    rate: int = 1000,
+    rate: int = 500,
     duration_s: float = 8.0,
     event_at_s: float = 2.0,
     tracer: bool = True,

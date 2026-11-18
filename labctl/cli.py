@@ -110,7 +110,7 @@ def run_cmd(
     event: str = typer.Option(..., help="carrier_down, silent_down, link_up or node_down"),
     seed: int = typer.Option(0, help="seeds the location choice"),
     location: str | None = typer.Option(None, help="'a-b' (link, acted on at a) or a router"),
-    rate: int = typer.Option(1000, help="probe pps per host pair"),
+    rate: int = typer.Option(500, help="probe pps per host pair (ADR-018)"),
     duration: float = typer.Option(8.0, help="probing seconds"),
     event_at: float = typer.Option(2.0, help="seconds after probing starts"),
     out: Path = typer.Option(Path("results/runs"), help="output root"),
